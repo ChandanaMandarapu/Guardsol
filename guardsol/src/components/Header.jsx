@@ -12,7 +12,7 @@ export default function Header() {
           <div className="text-3xl">🛡️</div>
           <div>
             <h1 className="text-xl font-bold text-gray-900">
-              Wallet Health Monitor
+              GuardSol
             </h1>
             <p className="text-sm text-gray-500">
               Protect your Solana wallet
