@@ -40,7 +40,7 @@ export async function checkIfScam(tokenAddress) {
   }
 }
 
-// Get all scam addresses
+// Getting all scam addresses
 export async function getAllScams() {
   try {
     console.log('📥 Fetching all scams...');

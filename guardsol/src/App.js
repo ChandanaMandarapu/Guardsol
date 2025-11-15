@@ -1,24 +1,37 @@
-import logo from './logo.svg';
-import './App.css';
+import React from 'react';
+import WalletContextProvider from './components/WalletProvider';
+import Header from './components/Header';
+import WalletInfo from './components/WalletInfo';
+import ScamTester from './components/ScamTester';
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <WalletContextProvider>
+      <div className="min-h-screen bg-gray-50">
+        
+        {/* Header with wallet button */}
+        <Header />
+        
+        {/* Main content */}
+        <main>
+          <WalletInfo />
+          <ScamTester />
+        </main>
+        
+        {/* Footer */}
+        <footer className="bg-white border-t border-gray-200 mt-12">
+          <div className="max-w-7xl mx-auto px-4 py-6">
+            <p className="text-center text-sm text-gray-500">
+              🛡️ Wallet Health Monitor - Day 1 Build
+            </p>
+            <p className="text-center text-xs text-gray-400 mt-1">
+              Not financial advice. Use at your own risk.
+            </p>
+          </div>
+        </footer>
+        
+      </div>
+    </WalletContextProvider>
   );
 }
 
