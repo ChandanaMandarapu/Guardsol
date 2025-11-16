@@ -1,78 +1,94 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useWallet } from '@solana/wallet-adapter-react';
 import WalletContextProvider from './components/WalletProvider';
 import Header from './components/Header';
 import WalletInfo from './components/WalletInfo';
 import TokenStats from './components/TokenStats';
+import ApprovalScanner from './components/ApprovalScanner';
 import TokenList from './components/TokenList';
 import { validateConfig } from './utils/config';
 
+export const DemoContext = React.createContext({
+  demoMode: false,
+  setDemoMode: () => {}
+});
+
 function App() {
-  // Validate config on startup
+  const [demoMode, setDemoMode] = useState(false);
+  
   React.useEffect(() => {
     validateConfig();
   }, []);
   
   return (
-    <WalletContextProvider>
-      <div className="min-h-screen bg-gray-50">
-        <Header />
-        <main>
-          <WalletInfo />
-          <TokenStatsAndList />
-        </main>
-        <footer className="bg-white border-t border-gray-200 mt-12">
-          <div className="max-w-7xl mx-auto px-4 py-6">
-            <p className="text-center text-sm text-gray-500">
-              🛡️ GuardSOL - Your Solana Security Shield
-            </p>
-            <p className="text-center text-xs text-gray-400 mt-1">
-              Not financial advice. Use at your own risk.
-            </p>
+    <DemoContext.Provider value={{ demoMode, setDemoMode }}>
+      <WalletContextProvider>
+        <div className="min-h-screen bg-gray-50">
+          
+          <Header />
+          
+          <div className="max-w-7xl mx-auto px-4 py-4">
+            <div className="bg-blue-50 border-2 border-blue-200 rounded-lg p-4 flex items-center justify-between">
+              <div>
+                <h3 className="font-bold text-blue-900">🎭 Demo Mode</h3>
+                <p className="text-sm text-blue-700">
+                  {demoMode ? 'Showing sample data' : 'Enable to see all features'}
+                </p>
+              </div>
+              <button
+                onClick={() => setDemoMode(!demoMode)}
+                className={`px-6 py-3 rounded-lg font-bold ${
+                  demoMode 
+                    ? 'bg-red-600 hover:bg-red-700 text-white' 
+                    : 'bg-blue-600 hover:bg-blue-700 text-white'
+                }`}
+              >
+                {demoMode ? '❌ Exit Demo' : '🎭 Try Demo'}
+              </button>
+            </div>
           </div>
-        </footer>
-      </div>
-    </WalletContextProvider>
+          
+          <main>
+            <WalletInfo />
+            <TokenStatsWrapper />
+            <ApprovalScanner />
+            <TokenList />
+          </main>
+          
+          <footer className="bg-white border-t border-gray-200 mt-12">
+            <div className="max-w-7xl mx-auto px-4 py-6">
+              <p className="text-center text-sm text-gray-500">
+                🛡️ Guard Sol - Your Solana Security Shield
+              </p>
+              <p className="text-center text-xs text-gray-400 mt-1">
+                Not financial advice. Use at your own risk.
+              </p>
+            </div>
+          </footer>
+          
+        </div>
+      </WalletContextProvider>
+    </DemoContext.Provider>
   );
 }
 
-function TokenStatsAndList() {
+function TokenStatsWrapper() {
   const { publicKey, connected } = useWallet();
   const [tokens, setTokens] = React.useState([]);
-  const [loading, setLoading] = React.useState(false);
   
   React.useEffect(() => {
     if (connected && publicKey) {
-      console.log('🔍 Fetching tokens for:', publicKey.toString());
-      setLoading(true);
-      
       import('./utils/tokens').then(({ fetchAllTokens }) => {
         fetchAllTokens(publicKey.toString())
-          .then((fetchedTokens) => {
-            console.log('✅ Fetched', fetchedTokens.length, 'tokens');
-            setTokens(fetchedTokens);
-          })
-          .catch((error) => {
-            console.error('❌ Error fetching tokens:', error);
-          })
-          .finally(() => {
-            setLoading(false);
-          });
+          .then(setTokens)
+          .catch(console.error);
       });
     } else {
       setTokens([]);
-      setLoading(false);
     }
   }, [connected, publicKey]);
   
-  if (!connected) return null;
-  
-  return (
-    <>
-      <TokenStats tokens={tokens} />
-      <TokenList tokens={tokens} loading={loading} />
-    </>
-  );
+  return <TokenStats tokens={tokens} />;
 }
 
 export default App;
