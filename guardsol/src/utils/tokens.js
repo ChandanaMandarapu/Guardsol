@@ -21,7 +21,7 @@ export async function fetchAllTokens(walletAddress) {
     
     const publicKey = new PublicKey(walletAddress);
     
-    // - gets all token accounts
+    // THE MAGIC FUNCTION - gets all token accounts
     const response = await connection.getParsedTokenAccountsByOwner(
       publicKey,
       { programId: TOKEN_PROGRAM_ID },
