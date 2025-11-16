@@ -1,15 +1,13 @@
 import { createClient } from '@supabase/supabase-js';
+import { config } from './config';
 
-
-const SUPABASE_URL = 'https://wjioubfrdqdpjusqfheu.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndqaW91YmZyZHFkcGp1c3FmaGV1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjMyMjU5NTUsImV4cCI6MjA3ODgwMTk1NX0.xR0oJbk6wH2a8pMgAM67--XJ83ROe3DYcOkRKYsrFSc';
-
-export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+// Create Supabase client using config
+export const supabase = createClient(config.supabaseUrl, config.supabaseAnonKey);
 
 // Check if token address is in scam database
 export async function checkIfScam(tokenAddress) {
   try {
-    console.log('🔍 Checking if scam:', tokenAddress);
+    console.log('🔍 Checking database for:', tokenAddress.slice(0, 8));
     
     const { data, error } = await supabase
       .from('scam_database')
@@ -29,22 +27,19 @@ export async function checkIfScam(tokenAddress) {
         reason: data.reason,
         verified: data.verified
       };
-    } else {
-      console.log('✅ Not in scam database');
-      return { isScam: false };
     }
     
+    return { isScam: false };
+    
   } catch (error) {
-    console.error('❌ Error checking scam database:', error);
+    console.error('❌ Database error:', error);
     return { isScam: false };
   }
 }
 
-// Getting all scam addresses
+// Get all scam addresses
 export async function getAllScams() {
   try {
-    console.log('📥 Fetching all scams...');
-    
     const { data, error } = await supabase
       .from('scam_database')
       .select('*')

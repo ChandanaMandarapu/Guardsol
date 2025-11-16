@@ -15,7 +15,7 @@ export default function Header() {
               GuardSol
             </h1>
             <p className="text-sm text-gray-500">
-              Protect your Solana wallet
+              Your Solana Security Shield
             </p>
           </div>
         </div>
