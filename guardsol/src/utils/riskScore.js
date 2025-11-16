@@ -1,5 +1,4 @@
 // RISK SCORE CALCULATOR
-// This calculates how safe your wallet is (0-100)
 
 export function calculateWalletRiskScore(data) {
   console.log('🎯 Calculating wallet risk score...');
@@ -14,13 +13,13 @@ export function calculateWalletRiskScore(data) {
   };
   
   // ============================================
-  // FACTOR 1: APPROVALS (Most important - 40% weight)
+  // FACTOR 1: APPROVALS (Most imp - 40% weight)
   // ============================================
   
   if (data.approvals && data.approvals.length > 0) {
     console.log('📊 Analyzing', data.approvals.length, 'approvals...');
     
-    // Group approvals by how dangerous they are
+    // Group approvals 
     const critical = data.approvals.filter(a => a.riskScore >= 81);
     const high = data.approvals.filter(a => a.riskScore >= 61 && a.riskScore < 81);
     const medium = data.approvals.filter(a => a.riskScore >= 31 && a.riskScore < 61);
@@ -81,13 +80,13 @@ export function calculateWalletRiskScore(data) {
   }
   
   // ============================================
-  // FACTOR 2: SCAM TOKENS (Second most important - 30% weight)
+  // FACTOR 2: SCAM TOKENS (Second most imp - 30% weight)
   // ============================================
   
   if (data.tokens && data.tokens.length > 0) {
     console.log('📊 Analyzing', data.tokens.length, 'tokens...');
     
-    // Group tokens by how scammy they are
+    // Group tokens by how scamm they are
     const confirmedScams = data.tokens.filter(t => t.scamScore === 100);
     const likelyScams = data.tokens.filter(t => t.scamScore >= 61 && t.scamScore < 100);
     const suspicious = data.tokens.filter(t => t.scamScore >= 31 && t.scamScore < 61);
