@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useWallet } from '@solana/wallet-adapter-react';
-import { fetchAllTokens } from '../utils/tokens';
 import { getApprovalsWithRisk, groupApprovalsByRisk } from '../utils/approvals';
 import { getRiskColor, getRiskEmoji } from '../utils/approvalRisk';
 import { revokeApproval, batchRevokeApprovals, estimateRevokeFee } from '../utils/revoke';
 
-export default function ApprovalScanner() {
-  const { publicKey, connected, wallet } = useWallet();
+// FIXED: Now accepts walletAddress and tokens as props
+export default function ApprovalScanner({ walletAddress, tokens, tokensLoading }) {
+  const { wallet, connected } = useWallet();
   
   const [approvals, setApprovals] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -14,25 +14,23 @@ export default function ApprovalScanner() {
   const [selectedApprovals, setSelectedApprovals] = useState([]);
   const [batchRevoking, setBatchRevoking] = useState(false);
 
+  // Scan approvals when tokens change
   useEffect(() => {
-    if (connected && publicKey) {
+    if (walletAddress && tokens && tokens.length > 0) {
       scanApprovals();
     } else {
       setApprovals([]);
       setError(null);
     }
-  }, [connected, publicKey]);
+  }, [walletAddress, tokens]);
 
   async function scanApprovals() {
     setLoading(true);
     setError(null);
-    console.log('🔍 Scanning approvals...');
+    console.log('🔍 Scanning approvals for:', walletAddress);
     
     try {
-      const address = publicKey.toString();
-      const tokens = await fetchAllTokens(address);
       const approvalsWithRisk = await getApprovalsWithRisk(tokens);
-      
       setApprovals(approvalsWithRisk);
       console.log('✅ Found', approvalsWithRisk.length, 'approvals');
       
@@ -45,6 +43,12 @@ export default function ApprovalScanner() {
   }
 
   async function handleBatchRevoke() {
+    // Check if wallet is connected (can only revoke with connected wallet)
+    if (!connected || !wallet) {
+      alert('Please connect your wallet to revoke approvals');
+      return;
+    }
+
     if (selectedApprovals.length === 0) {
       alert('Please select approvals to revoke');
       return;
@@ -102,9 +106,10 @@ export default function ApprovalScanner() {
     });
   }
 
-  if (!connected) return null;
+  // Don't show anything if no wallet address
+  if (!walletAddress) return null;
 
-  if (loading) {
+  if (loading || tokensLoading) {
     return (
       <div className="max-w-7xl mx-auto px-4 py-8">
         <div className="bg-white rounded-lg shadow-md p-8">
@@ -153,6 +158,7 @@ export default function ApprovalScanner() {
   }
 
   const grouped = groupApprovalsByRisk(approvals);
+  const canRevoke = connected && wallet;
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
@@ -160,6 +166,11 @@ export default function ApprovalScanner() {
       <div className="mb-6">
         <h2 className="text-2xl font-bold text-gray-900 mb-2">🔍 Approval Scanner</h2>
         <p className="text-gray-600">Found {approvals.length} approval{approvals.length !== 1 ? 's' : ''}</p>
+        {!canRevoke && (
+          <p className="text-sm text-orange-600 mt-2">
+            ⚠️ Connect your wallet to revoke approvals
+          </p>
+        )}
       </div>
 
       {(grouped.critical.length > 0 || grouped.high.length > 0) && (
@@ -183,7 +194,7 @@ export default function ApprovalScanner() {
         </div>
       )}
 
-      {approvals.length > 0 && (
+      {approvals.length > 0 && canRevoke && (
         <div className="bg-white rounded-lg shadow-md p-6 mb-6">
           <div className="flex items-center justify-between mb-4">
             <div>
@@ -260,6 +271,7 @@ export default function ApprovalScanner() {
             selectedApprovals={selectedApprovals}
             onToggleSelect={toggleSelection}
             wallet={wallet}
+            canRevoke={canRevoke}
           />
         )}
         
@@ -270,6 +282,7 @@ export default function ApprovalScanner() {
             selectedApprovals={selectedApprovals}
             onToggleSelect={toggleSelection}
             wallet={wallet}
+            canRevoke={canRevoke}
           />
         )}
         
@@ -280,6 +293,7 @@ export default function ApprovalScanner() {
             selectedApprovals={selectedApprovals}
             onToggleSelect={toggleSelection}
             wallet={wallet}
+            canRevoke={canRevoke}
           />
         )}
         
@@ -290,6 +304,7 @@ export default function ApprovalScanner() {
             selectedApprovals={selectedApprovals}
             onToggleSelect={toggleSelection}
             wallet={wallet}
+            canRevoke={canRevoke}
           />
         )}
       </div>
@@ -298,7 +313,7 @@ export default function ApprovalScanner() {
   );
 }
 
-function ApprovalGroup({ title, approvals, selectedApprovals, onToggleSelect, wallet }) {
+function ApprovalGroup({ title, approvals, selectedApprovals, onToggleSelect, wallet, canRevoke }) {
   return (
     <div className="space-y-4">
       <h3 className="text-lg font-bold text-gray-900">{title}</h3>
@@ -310,6 +325,7 @@ function ApprovalGroup({ title, approvals, selectedApprovals, onToggleSelect, wa
             selected={selectedApprovals.includes(approval.tokenAccountAddress)}
             onToggleSelect={() => onToggleSelect(approval.tokenAccountAddress)}
             wallet={wallet}
+            canRevoke={canRevoke}
           />
         ))}
       </div>
@@ -317,7 +333,7 @@ function ApprovalGroup({ title, approvals, selectedApprovals, onToggleSelect, wa
   );
 }
 
-function ApprovalCard({ approval, selected, onToggleSelect, wallet }) {
+function ApprovalCard({ approval, selected, onToggleSelect, wallet, canRevoke }) {
   const [showDetails, setShowDetails] = useState(false);
   const [revoking, setRevoking] = useState(false);
   const [revokeSuccess, setRevokeSuccess] = useState(false);
@@ -326,6 +342,11 @@ function ApprovalCard({ approval, selected, onToggleSelect, wallet }) {
   const riskColor = getRiskColor(approval.riskLevel);
   
   async function handleRevoke() {
+    if (!canRevoke) {
+      alert('Please connect your wallet to revoke approvals');
+      return;
+    }
+
     const fee = await estimateRevokeFee();
     const confirmed = window.confirm(
       `Revoke approval for ${approval.tokenName}?\n\n` +
@@ -376,12 +397,14 @@ function ApprovalCard({ approval, selected, onToggleSelect, wallet }) {
       
       <div className="flex items-start gap-4">
         
-        <input
-          type="checkbox"
-          checked={selected}
-          onChange={onToggleSelect}
-          className="mt-2 w-5 h-5 text-primary border-gray-300 rounded focus:ring-primary cursor-pointer"
-        />
+        {canRevoke && (
+          <input
+            type="checkbox"
+            checked={selected}
+            onChange={onToggleSelect}
+            className="mt-2 w-5 h-5 text-primary border-gray-300 rounded focus:ring-primary cursor-pointer"
+          />
+        )}
         
         <div className="flex-1 min-w-0">
           
@@ -494,7 +517,7 @@ function ApprovalCard({ approval, selected, onToggleSelect, wallet }) {
           )}
 
           <div className="flex gap-3">
-            {!revokeSuccess ? (
+            {canRevoke && !revokeSuccess && (
               <button
                 onClick={handleRevoke}
                 disabled={revoking}
@@ -512,10 +535,18 @@ function ApprovalCard({ approval, selected, onToggleSelect, wallet }) {
                   </>
                 )}
               </button>
-            ) : (
+            )}
+
+            {revokeSuccess && (
               <div className="flex-1 px-4 py-2 bg-green-600 text-white font-semibold rounded-lg flex items-center justify-center gap-2">
                 <span>✅</span>
                 <span>Revoked!</span>
+              </div>
+            )}
+
+            {!canRevoke && (
+              <div className="flex-1 px-4 py-2 bg-gray-300 text-gray-600 font-semibold rounded-lg text-center">
+                Connect wallet to revoke
               </div>
             )}
             
