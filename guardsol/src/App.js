@@ -3,6 +3,7 @@ import { useWallet } from '@solana/wallet-adapter-react';
 import WalletContextProvider from './components/WalletProvider';
 import Header from './components/Header';
 import WalletInfo from './components/WalletInfo';
+import RiskScoreDisplay from './components/RiskScoreDisplay'; // ← NEW: Added this
 import TokenStats from './components/TokenStats';
 import ApprovalScanner from './components/ApprovalScanner';
 import TokenList from './components/TokenList';
@@ -20,7 +21,9 @@ function App() {
         <Header />
         
         <main>
+          
           <WalletInfo />
+          <RiskScoreDisplay />
           <TokenStatsWrapper />
           <ApprovalScanner />
           <TokenList />
