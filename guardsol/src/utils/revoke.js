@@ -1,48 +1,64 @@
+// src/utils/revoke.js
+// COMPLETE REVOKE FUNCTIONALITY FOR DAY 5
+
 import { Transaction, PublicKey } from '@solana/web3.js';
 import { createRevokeInstruction, TOKEN_PROGRAM_ID } from '@solana/spl-token';
 import { connection } from './solana';
 
-// Revoke single approval
+/**
+ * Revoke a single token approval
+ * @param {string} tokenAccountAddress - Token account with approval
+ * @param {Object} wallet - Connected wallet object
+ * @returns {Promise<Object>} Result with success/error
+ */
 export async function revokeApproval(tokenAccountAddress, wallet) {
-  console.log('🗑️ Starting revoke:', tokenAccountAddress.slice(0, 8));
+  console.log('🗑️ Starting revoke for:', tokenAccountAddress.slice(0, 8));
   
   try {
+    // 1. VALIDATE INPUTS
     if (!wallet || !wallet.publicKey) {
       throw new Error('Wallet not connected');
     }
     
     if (!wallet.signTransaction) {
-      throw new Error('Wallet does not support signing');
+      throw new Error('Wallet does not support signing transactions');
     }
     
+    // 2. CREATE PUBLIC KEYS
     const tokenAccount = new PublicKey(tokenAccountAddress);
     const owner = wallet.publicKey;
     
     console.log('📝 Creating revoke instruction...');
     
+    // 3. CREATE REVOKE INSTRUCTION
+    // This is the SPL Token instruction that removes delegate
     const revokeInstruction = createRevokeInstruction(
-      tokenAccount,
-      owner,
-      [],
-      TOKEN_PROGRAM_ID
+      tokenAccount,      // Token account to revoke from
+      owner,             // Owner of the token account
+      [],                // No multisig signers needed
+      TOKEN_PROGRAM_ID   // SPL Token program
     );
     
     console.log('📦 Building transaction...');
     
+    // 4. CREATE TRANSACTION
     const transaction = new Transaction();
     transaction.add(revokeInstruction);
     
+    // 5. GET LATEST BLOCKHASH
     const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash('confirmed');
     transaction.recentBlockhash = blockhash;
     transaction.lastValidBlockHeight = lastValidBlockHeight;
     transaction.feePayer = owner;
     
-    console.log('✍️ Requesting signature...');
+    console.log('✍️ Requesting wallet signature...');
     
+    // 6. SIGN TRANSACTION
     const signedTransaction = await wallet.signTransaction(transaction);
     
-    console.log('📡 Sending transaction...');
+    console.log('📡 Sending transaction to network...');
     
+    // 7. SEND TRANSACTION
     const signature = await connection.sendRawTransaction(
       signedTransaction.serialize(),
       {
@@ -54,6 +70,7 @@ export async function revokeApproval(tokenAccountAddress, wallet) {
     console.log('⏳ Waiting for confirmation...');
     console.log('Signature:', signature);
     
+    // 8. WAIT FOR CONFIRMATION
     const confirmation = await connection.confirmTransaction(
       {
         signature,
@@ -63,6 +80,7 @@ export async function revokeApproval(tokenAccountAddress, wallet) {
       'confirmed'
     );
     
+    // 9. CHECK FOR ERRORS
     if (confirmation.value.err) {
       throw new Error(`Transaction failed: ${JSON.stringify(confirmation.value.err)}`);
     }
@@ -76,18 +94,21 @@ export async function revokeApproval(tokenAccountAddress, wallet) {
     };
     
   } catch (error) {
-    console.error('❌ Error revoking:', error);
+    console.error('❌ Error revoking approval:', error);
     
+    // Parse error messages
     let errorMessage = 'Failed to revoke approval';
     
     if (error.message.includes('User rejected')) {
-      errorMessage = 'You rejected the transaction';
+      errorMessage = 'Transaction rejected by user';
     } else if (error.message.includes('Insufficient funds')) {
-      errorMessage = 'Insufficient SOL for transaction fee';
+      errorMessage = 'Insufficient SOL for transaction fee (~0.00001 SOL needed)';
     } else if (error.message.includes('Blockhash not found')) {
       errorMessage = 'Transaction expired. Please try again';
+    } else if (error.message.includes('custom program error: 0x1')) {
+      errorMessage = 'Insufficient SOL for transaction fee';
     } else {
-      errorMessage = error.message || 'Unknown error';
+      errorMessage = error.message || 'Unknown error occurred';
     }
     
     return {
@@ -97,22 +118,45 @@ export async function revokeApproval(tokenAccountAddress, wallet) {
   }
 }
 
-// Estimate fee
+/**
+ * Estimate transaction fee for revoke
+ * @returns {number} Fee in SOL
+ */
 export async function estimateRevokeFee() {
-  return 0.00001; // ~0.00001 SOL
+  // Revoke is a simple transaction, typically costs ~0.000005 SOL
+  // We return a conservative estimate
+  return 0.00001;
 }
 
-// Batch revoke multiple approvals
+/**
+ * Batch revoke multiple approvals
+ * @param {Array<string>} tokenAccountAddresses - Array of token accounts
+ * @param {Object} wallet - Connected wallet
+ * @returns {Promise<Object>} Result with success/error
+ */
 export async function batchRevokeApprovals(tokenAccountAddresses, wallet) {
-  console.log('🗑️ Batch revoke:', tokenAccountAddresses.length, 'approvals');
+  console.log('🗑️ Batch revoking:', tokenAccountAddresses.length, 'approvals');
   
   try {
+    // 1. VALIDATE
     if (!wallet || !wallet.publicKey) {
       throw new Error('Wallet not connected');
     }
     
+    if (tokenAccountAddresses.length === 0) {
+      throw new Error('No approvals selected');
+    }
+    
+    // 2. LIMIT CHECK (Solana transactions have size limits)
+    if (tokenAccountAddresses.length > 20) {
+      throw new Error('Too many approvals. Maximum 20 per batch. Please select fewer.');
+    }
+    
     const owner = wallet.publicKey;
     
+    console.log('📝 Creating', tokenAccountAddresses.length, 'revoke instructions...');
+    
+    // 3. CREATE ALL INSTRUCTIONS
     const instructions = tokenAccountAddresses.map(address => {
       const tokenAccount = new PublicKey(address);
       return createRevokeInstruction(
@@ -123,24 +167,24 @@ export async function batchRevokeApprovals(tokenAccountAddresses, wallet) {
       );
     });
     
-    if (instructions.length > 20) {
-      throw new Error('Too many approvals. Max 20 per batch.');
-    }
-    
+    // 4. BUILD TRANSACTION WITH ALL INSTRUCTIONS
     const transaction = new Transaction();
-    instructions.forEach(inst => transaction.add(inst));
+    instructions.forEach(instruction => transaction.add(instruction));
     
+    // 5. GET BLOCKHASH
     const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash('confirmed');
     transaction.recentBlockhash = blockhash;
     transaction.lastValidBlockHeight = lastValidBlockHeight;
     transaction.feePayer = owner;
     
-    console.log('✍️ Requesting signature...');
+    console.log('✍️ Requesting wallet signature for batch transaction...');
     
+    // 6. SIGN
     const signedTransaction = await wallet.signTransaction(transaction);
     
     console.log('📡 Sending batch transaction...');
     
+    // 7. SEND
     const signature = await connection.sendRawTransaction(
       signedTransaction.serialize(),
       {
@@ -149,8 +193,10 @@ export async function batchRevokeApprovals(tokenAccountAddresses, wallet) {
       }
     );
     
-    console.log('⏳ Waiting for confirmation...');
+    console.log('⏳ Confirming batch transaction...');
+    console.log('Signature:', signature);
     
+    // 8. CONFIRM
     const confirmation = await connection.confirmTransaction(
       {
         signature,
@@ -161,16 +207,16 @@ export async function batchRevokeApprovals(tokenAccountAddresses, wallet) {
     );
     
     if (confirmation.value.err) {
-      throw new Error(`Batch transaction failed`);
+      throw new Error('Batch transaction failed');
     }
     
-    console.log('✅ All approvals revoked!');
+    console.log('✅ All approvals revoked successfully!');
     
     return {
       success: true,
       signature,
       count: tokenAccountAddresses.length,
-      message: `Successfully revoked ${tokenAccountAddresses.length} approvals!`
+      message: `Successfully revoked ${tokenAccountAddresses.length} approval${tokenAccountAddresses.length !== 1 ? 's' : ''}!`
     };
     
   } catch (error) {
@@ -179,11 +225,13 @@ export async function batchRevokeApprovals(tokenAccountAddresses, wallet) {
     let errorMessage = 'Failed to revoke approvals';
     
     if (error.message.includes('User rejected')) {
-      errorMessage = 'You rejected the transaction';
+      errorMessage = 'Transaction rejected by user';
     } else if (error.message.includes('Too many')) {
-      errorMessage = error.message;
+      errorMessage = error.message; // Custom message about 20 limit
+    } else if (error.message.includes('Insufficient funds')) {
+      errorMessage = 'Insufficient SOL for transaction fees';
     } else {
-      errorMessage = error.message || 'Unknown error';
+      errorMessage = error.message || 'Unknown error occurred';
     }
     
     return {
