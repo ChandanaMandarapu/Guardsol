@@ -62,6 +62,10 @@ function AppContent() {
           tokens={tokens}
           tokensLoading={tokensLoading}
         />
+        <TokenList 
+  tokens={tokens} 
+  loading={tokensLoading} 
+/>
       </main>
       
       <footer className="bg-white border-t border-gray-200 mt-12">
