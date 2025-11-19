@@ -1,7 +1,13 @@
 {
   "functions": {
-    "api/*.js": {
-      "runtime": "nodejs18.x"
+    "api/**/*.js": {
+      "memory": 1024,
+      "maxDuration": 10
     }
+  },
+  "env": {
+    "SUPABASE_URL": "@supabase-url",
+    "SUPABASE_SERVICE_KEY": "@supabase-service-key",
+    "ADMIN_WALLET_ADDRESS": "@admin-wallet"
   }
 }
