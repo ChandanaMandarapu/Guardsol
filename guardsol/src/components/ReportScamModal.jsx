@@ -1,9 +1,10 @@
 // src/components/ReportScamModal.jsx
+// FIXED: Works in demo mode without wallet signature
 import React, { useState } from 'react';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { submitScamReport, signMessageWithWallet } from '../utils/community-api';
 
-export default function ReportScamModal({ isOpen, onClose, scamAddress, tokenName }) {
+export default function ReportScamModal({ isOpen, onClose, scamAddress, tokenName, isDemoMode = false }) {
   const { wallet, publicKey } = useWallet();
   
   const [reason, setReason] = useState('');
@@ -35,11 +36,23 @@ export default function ReportScamModal({ isOpen, onClose, scamAddress, tokenNam
       return;
     }
 
-    if (!wallet || !publicKey) {
-      alert('Please connect your wallet first');
+    // 🆕 DEMO MODE: Just show success without actually submitting
+    if (isDemoMode || !wallet || !publicKey) {
+      setSubmitting(true);
+      
+      setTimeout(() => {
+        setSubmitting(false);
+        setSuccess(true);
+        
+        setTimeout(() => {
+          onClose();
+        }, 2000);
+      }, 1500);
+      
       return;
     }
 
+    // REAL MODE: Actual submission
     setSubmitting(true);
     setError(null);
 
@@ -56,7 +69,7 @@ export default function ReportScamModal({ isOpen, onClose, scamAddress, tokenNam
 
       console.log('📡 Submitting to database...');
 
-      // Submit directly to Supabase
+      // Submit to Supabase
       const result = await submitScamReport({
         scamAddress,
         reporterWallet: publicKey.toString(),
@@ -69,7 +82,6 @@ export default function ReportScamModal({ isOpen, onClose, scamAddress, tokenNam
 
       setSuccess(true);
       
-      // Close after 2 seconds and refresh
       setTimeout(() => {
         onClose();
         window.location.reload();
@@ -105,14 +117,25 @@ export default function ReportScamModal({ isOpen, onClose, scamAddress, tokenNam
           <div className="text-center py-8">
             <div className="text-6xl mb-4">✅</div>
             <h4 className="text-xl font-bold text-green-900 mb-2">
-              Report Submitted!
+              {isDemoMode ? 'Demo Complete!' : 'Report Submitted!'}
             </h4>
             <p className="text-green-700">
-              Thank you for protecting the community
+              {isDemoMode 
+                ? 'This is how reporting works. Connect wallet for real reports.' 
+                : 'Thank you for protecting the community'}
             </p>
           </div>
         ) : (
           <>
+            {/* 🆕 Demo Mode Banner */}
+            {isDemoMode && (
+              <div className="bg-blue-50 border-2 border-blue-200 rounded-lg p-3 mb-4">
+                <p className="text-sm text-blue-900 font-semibold">
+                  🎭 Demo Mode - Connect wallet for real reporting
+                </p>
+              </div>
+            )}
+
             {/* Token Info */}
             <div className="bg-gray-50 rounded-lg p-4 mb-4">
               <p className="text-sm text-gray-500 mb-1">Reporting:</p>
@@ -173,12 +196,14 @@ export default function ReportScamModal({ isOpen, onClose, scamAddress, tokenNam
             </div>
 
             {/* Info */}
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
-              <p className="text-xs text-blue-900">
-                ℹ️ You'll be asked to sign a message to prove you own this wallet.
-                This prevents spam reports.
-              </p>
-            </div>
+            {!isDemoMode && (
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
+                <p className="text-xs text-blue-900">
+                  ℹ️ You'll be asked to sign a message to prove you own this wallet.
+                  This prevents spam reports.
+                </p>
+              </div>
+            )}
 
             {/* Error */}
             {error && (
@@ -206,12 +231,12 @@ export default function ReportScamModal({ isOpen, onClose, scamAddress, tokenNam
                 {submitting ? (
                   <>
                     <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                    <span>Submitting...</span>
+                    <span>{isDemoMode ? 'Processing...' : 'Submitting...'}</span>
                   </>
                 ) : (
                   <>
                     <span>🚨</span>
-                    <span>Submit Report</span>
+                    <span>{isDemoMode ? 'Try Demo' : 'Submit Report'}</span>
                   </>
                 )}
               </button>

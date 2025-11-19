@@ -1,14 +1,17 @@
+// src/components/TokenList.jsx
+// FIXED: works for public wallets too (no wallet-connection check)
 import React, { useState, useMemo } from 'react';
 import ReportScamModal from './ReportScamModal';
 import CommunityReports from './CommunityReports';
-import { useWallet } from '@solana/wallet-adapter-react';
 import { hasApproval, formatTokenBalance } from '../utils/tokens';
 import { getScamScoreBadge, getScamScoreColor } from '../utils/scamDetection';
 
 export default function TokenList({ tokens = [], loading = false }) {
-  const { connected } = useWallet();
   const [sortBy, setSortBy] = useState('scamScore');
   const [filterBy, setFilterBy] = useState('all');
+
+  // DEMO STATE FOR MODAL
+  const [showDemoModal, setShowDemoModal] = useState(false);
 
   // Filter + Sort tokens
   const filteredAndSortedTokens = useMemo(() => {
@@ -38,8 +41,6 @@ export default function TokenList({ tokens = [], loading = false }) {
     return filtered;
   }, [tokens, sortBy, filterBy]);
 
-  if (!connected) return null;
-
   if (loading) {
     return (
       <div className="max-w-7xl mx-auto px-4 py-8">
@@ -53,13 +54,40 @@ export default function TokenList({ tokens = [], loading = false }) {
     );
   }
 
+  // 🔥 DEMO UI IF NO TOKENS
   if (tokens.length === 0) {
     return (
       <div className="max-w-7xl mx-auto px-4 py-8">
         <div className="bg-white rounded-lg shadow-md p-8 text-center">
           <div className="text-6xl mb-4">🪙</div>
           <h3 className="text-xl font-bold text-gray-900 mb-2">No Tokens Found</h3>
-          <p className="text-gray-600">This wallet doesn't hold any SPL tokens</p>
+          <p className="text-gray-600 mb-4">But you can still test reporting:</p>
+
+          {/* DEMO CARD */}
+          <div className="bg-white rounded-lg shadow-md p-6 border-2 border-red-200 max-w-md mx-auto">
+            <h3 className="font-bold text-gray-900 mb-2">🔥 Demo Suspicious Token</h3>
+            <p className="text-sm text-gray-600 mb-4">
+              Click to see how scam reporting works, even without tokens.
+            </p>
+
+            <button
+              onClick={() => setShowDemoModal(true)}
+              className="w-full px-4 py-2 bg-red-50 border border-red-200 text-red-700 font-semibold rounded-lg hover:bg-red-100"
+            >
+              🚨 Report This Token
+            </button>
+          </div>
+
+          {/* Demo Modal */}
+          {showDemoModal && (
+            <ReportScamModal
+              isOpen={true}
+              onClose={() => setShowDemoModal(false)}
+              scamAddress="DEMO_FAKE_TOKEN_12345"
+              tokenName="Demo Suspicious Token"
+              isDemoMode={true}
+            />
+          )}
         </div>
       </div>
     );
@@ -140,19 +168,19 @@ function TokenCard({ token }) {
   const borderColor = {
     red: 'border-red-200',
     yellow: 'border-yellow-200',
-    green: 'border-green-200'
+    green: 'border-green-200',
   }[color];
 
   const bgColor = {
     red: 'bg-red-50',
     yellow: 'bg-yellow-50',
-    green: 'bg-green-50'
+    green: 'bg-green-50',
   }[color];
 
   return (
     <>
       <div className={`bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow border-2 ${borderColor}`}>
-        
+
         {/* Badge */}
         <div className="flex justify-end mb-2">
           <div className={`${bgColor} px-3 py-1 rounded-full flex items-center gap-1`}>
@@ -164,8 +192,8 @@ function TokenCard({ token }) {
         {/* Token Info */}
         <div className="flex items-center gap-3 mb-4">
           {image ? (
-            <img 
-              src={image} 
+            <img
+              src={image}
               alt={name}
               className="w-12 h-12 rounded-full object-cover"
               onError={(e) => (e.target.style.display = 'none')}
@@ -197,13 +225,6 @@ function TokenCard({ token }) {
           </div>
         )}
 
-        {/* Approval Warning */}
-        {hasApproval(token) && (
-          <div className="bg-orange-50 border border-orange-200 rounded-lg p-3 mb-4">
-            <p className="text-sm font-medium text-orange-900">⚠️ Has Approval</p>
-          </div>
-        )}
-
         {/* Community Reports */}
         <CommunityReports address={token.mint} />
 
@@ -217,12 +238,13 @@ function TokenCard({ token }) {
         </button>
       </div>
 
-      {/* Modal */}
+      {/* Real Report Modal for actual tokens */}
       <ReportScamModal
         isOpen={showReportModal}
         onClose={() => setShowReportModal(false)}
         scamAddress={token.mint}
         tokenName={name}
+        isDemoMode={false}
       />
     </>
   );
