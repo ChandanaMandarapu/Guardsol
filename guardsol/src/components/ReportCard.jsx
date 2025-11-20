@@ -48,10 +48,9 @@ export default function ReportCard({ report, isAdmin, adminWallet, onUpdate }) {
   }
 
   return (
-    <div className={`bg-white rounded-lg shadow-md p-6 border-2 ${
-      report.verified ? 'border-green-200' : 'border-gray-200'
-    }`}>
-      
+    <div className={`bg-white rounded-lg shadow-md p-6 border-2 ${report.verified ? 'border-green-200' : 'border-gray-200'
+      }`}>
+
       {/* Header */}
       <div className="flex items-start justify-between mb-4">
         <div className="flex-1">
@@ -81,7 +80,7 @@ export default function ReportCard({ report, isAdmin, adminWallet, onUpdate }) {
       <div className="bg-gray-50 rounded-lg p-3 mb-4">
         <p className="text-xs text-gray-500 mb-1">Reported by:</p>
         <p className="text-xs font-mono text-gray-700 break-all mb-2">
-          {report.reporter_wallet}
+          {report.reporter_wallet || 'Anonymous'}
         </p>
 
         {reporterStats && (

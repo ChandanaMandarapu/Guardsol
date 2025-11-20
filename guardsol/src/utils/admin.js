@@ -32,7 +32,7 @@ export async function getAllReports() {
 
     if (error) throw error;
 
-    console.log(' Fetched all reports:', data?.length || 0);
+    console.log('📊 Fetched all reports:', data?.length || 0);
     return data || [];
   } catch (error) {
     console.error('❌ Error fetching reports:', error);
@@ -124,29 +124,34 @@ export async function verifyReport(reportId, adminWallet, verdict) {
     console.log('✅ Report updated:', updatedReport);
 
     // Update reporter reputation
-    const repChange = verdict === 'approve' ? 5 : -10;
+    // Handle case where reporter_wallet might be null (Anonymous)
+    if (report.reporter_wallet && report.reporter_wallet !== 'Anonymous') {
+      const repChange = verdict === 'approve' ? 5 : -10;
 
-    const { data: userRep, error: repError } = await supabase
-      .from('user_reputation')
-      .select('*')
-      .eq('wallet_address', report.reporter_wallet)
-      .single();
-
-    if (userRep) {
-      console.log('📊 Updating reputation...');
-
-      await supabase
+      const { data: userRep, error: repError } = await supabase
         .from('user_reputation')
-        .update({
-          reputation_score: Math.max(0, Math.min(100, userRep.reputation_score + repChange)),
-          verified_reports: verdict === 'approve' ? userRep.verified_reports + 1 : userRep.verified_reports,
-          false_reports: verdict === 'reject' ? userRep.false_reports + 1 : userRep.false_reports
-        })
-        .eq('wallet_address', report.reporter_wallet);
+        .select('*')
+        .eq('wallet_address', report.reporter_wallet)
+        .single();
 
-      console.log('✅ Reputation updated');
+      if (userRep) {
+        console.log('📊 Updating reputation...');
+
+        await supabase
+          .from('user_reputation')
+          .update({
+            reputation_score: Math.max(0, Math.min(100, userRep.reputation_score + repChange)),
+            verified_reports: verdict === 'approve' ? userRep.verified_reports + 1 : userRep.verified_reports,
+            false_reports: verdict === 'reject' ? userRep.false_reports + 1 : userRep.false_reports
+          })
+          .eq('wallet_address', report.reporter_wallet);
+
+        console.log('✅ Reputation updated');
+      } else {
+        console.log('⚠️ No reputation record found for reporter');
+      }
     } else {
-      console.log('⚠️ No reputation record found for reporter');
+      console.log('ℹ️ Anonymous report verified, no reputation update needed.');
     }
 
     return { success: true, verdict };
@@ -175,6 +180,17 @@ export async function rejectReport(reportId, adminWallet) {
  * Get reporter stats
  */
 export async function getReporterStats(walletAddress) {
+  // Handle null/undefined or 'Anonymous'
+  if (!walletAddress || walletAddress === 'Anonymous') {
+    return {
+      reputation_score: 0,
+      total_reports: 0,
+      verified_reports: 0,
+      false_reports: 0,
+      is_anonymous: true
+    };
+  }
+
   try {
     const { data, error } = await supabase
       .from('user_reputation')
