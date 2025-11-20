@@ -18,10 +18,15 @@ export default async function handler(req, res) {
       process.env.SUPABASE_SERVICE_KEY
     );
 
-    // Get all reports for this address
+    // Get all reports with votes
     const { data: reports, error } = await supabase
       .from('scam_reports')
-      .select('*')
+      .select(`
+        *,
+        report_votes (
+          vote_type
+        )
+      `)
       .eq('reported_address', address);
 
     if (error) throw error;
@@ -50,11 +55,18 @@ export default async function handler(req, res) {
       reportCount: totalReports,
       verifiedCount: verifiedReports,
       confidence,
-      reports: reports.map(r => ({
-        reason: r.reason,
-        reportedAt: r.created_at,
-        verified: r.verified
-      }))
+      reports: reports.map(r => {
+        const upvotes = r.report_votes?.filter(v => v.vote_type === 'upvote').length || 0;
+        const downvotes = r.report_votes?.filter(v => v.vote_type === 'downvote').length || 0;
+        return {
+          id: r.id,
+          reason: r.reason,
+          reportedAt: r.created_at,
+          verified: r.verified,
+          upvotes,
+          downvotes
+        };
+      })
     });
 
   } catch (error) {

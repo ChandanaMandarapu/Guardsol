@@ -1,17 +1,17 @@
 // src/components/TokenList.jsx
-// FIXED: works for public wallets too (no wallet-connection check)
+// FIXED: Passes viewingAddress to ReportScamModal
 import React, { useState, useMemo } from 'react';
+import { useWallet } from '@solana/wallet-adapter-react';
 import ReportScamModal from './ReportScamModal';
 import CommunityReports from './CommunityReports';
 import { hasApproval, formatTokenBalance } from '../utils/tokens';
 import { getScamScoreBadge, getScamScoreColor } from '../utils/scamDetection';
 
-export default function TokenList({ tokens = [], loading = false }) {
+export default function TokenList({ tokens = [], loading = false, viewingAddress = null }) {
+  const { connected } = useWallet();
+  
   const [sortBy, setSortBy] = useState('scamScore');
   const [filterBy, setFilterBy] = useState('all');
-
-  // DEMO STATE FOR MODAL
-  const [showDemoModal, setShowDemoModal] = useState(false);
 
   // Filter + Sort tokens
   const filteredAndSortedTokens = useMemo(() => {
@@ -54,40 +54,17 @@ export default function TokenList({ tokens = [], loading = false }) {
     );
   }
 
-  // 🔥 DEMO UI IF NO TOKENS
   if (tokens.length === 0) {
     return (
       <div className="max-w-7xl mx-auto px-4 py-8">
         <div className="bg-white rounded-lg shadow-md p-8 text-center">
           <div className="text-6xl mb-4">🪙</div>
           <h3 className="text-xl font-bold text-gray-900 mb-2">No Tokens Found</h3>
-          <p className="text-gray-600 mb-4">But you can still test reporting:</p>
-
-          {/* DEMO CARD */}
-          <div className="bg-white rounded-lg shadow-md p-6 border-2 border-red-200 max-w-md mx-auto">
-            <h3 className="font-bold text-gray-900 mb-2">🔥 Demo Suspicious Token</h3>
-            <p className="text-sm text-gray-600 mb-4">
-              Click to see how scam reporting works, even without tokens.
-            </p>
-
-            <button
-              onClick={() => setShowDemoModal(true)}
-              className="w-full px-4 py-2 bg-red-50 border border-red-200 text-red-700 font-semibold rounded-lg hover:bg-red-100"
-            >
-              🚨 Report This Token
-            </button>
-          </div>
-
-          {/* Demo Modal */}
-          {showDemoModal && (
-            <ReportScamModal
-              isOpen={true}
-              onClose={() => setShowDemoModal(false)}
-              scamAddress="DEMO_FAKE_TOKEN_12345"
-              tokenName="Demo Suspicious Token"
-              isDemoMode={true}
-            />
-          )}
+          <p className="text-gray-600">
+            {connected 
+              ? 'This wallet has no tokens'
+              : 'Enter a wallet address to scan for tokens'}
+          </p>
         </div>
       </div>
     );
@@ -103,7 +80,7 @@ export default function TokenList({ tokens = [], loading = false }) {
         </p>
 
         <div className="flex flex-wrap gap-4">
-          {/* Sort Select */}
+          {/* Sort */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Sort by</label>
             <select
@@ -117,7 +94,7 @@ export default function TokenList({ tokens = [], loading = false }) {
             </select>
           </div>
 
-          {/* Filter Select */}
+          {/* Filter */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Filter by</label>
             <select
@@ -144,14 +121,18 @@ export default function TokenList({ tokens = [], loading = false }) {
       {/* Token Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredAndSortedTokens.map((token) => (
-          <TokenCard key={token.id} token={token} />
+          <TokenCard 
+            key={token.id} 
+            token={token} 
+            viewingAddress={viewingAddress}
+          />
         ))}
       </div>
     </div>
   );
 }
 
-function TokenCard({ token }) {
+function TokenCard({ token, viewingAddress }) {
   const [showReportModal, setShowReportModal] = useState(false);
 
   const metadata = token.metadata;
@@ -231,20 +212,20 @@ function TokenCard({ token }) {
         {/* Report Button */}
         <button
           onClick={() => setShowReportModal(true)}
-          className="w-full px-4 py-2 bg-red-50 border border-red-200 text-red-700 font-semibold rounded-lg hover:bg-red-100 flex items-center justify-center gap-2"
+          className="w-full px-4 py-2 bg-red-50 border border-red-200 text-red-700 font-semibold rounded-lg hover:bg-red-100 flex items-center justify-center gap-2 transition-colors"
         >
           <span>🚨</span>
           <span>Report as Scam</span>
         </button>
       </div>
 
-      {/* Real Report Modal for actual tokens */}
+      {/* Report Modal - NOW WITH viewingAddress */}
       <ReportScamModal
         isOpen={showReportModal}
         onClose={() => setShowReportModal(false)}
         scamAddress={token.mint}
         tokenName={name}
-        isDemoMode={false}
+        viewingAddress={viewingAddress}
       />
     </>
   );

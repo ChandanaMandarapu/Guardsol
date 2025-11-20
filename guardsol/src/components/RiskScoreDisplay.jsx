@@ -2,12 +2,14 @@ import React, { useState, useEffect } from 'react';
 import CircularProgress from './CircularProgress';
 import { fetchRiskScoreData } from '../utils/riskScoreData';
 import { getImprovementSuggestions, calculatePotentialScore } from '../utils/riskScore';
+import ReportScamModal from './ReportScamModal'; // Import the modal
 
 // FIXED: Now accepts walletAddress as prop
 export default function RiskScoreDisplay({ walletAddress }) {
   const [riskData, setRiskData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [showReportModal, setShowReportModal] = useState(false); // State for modal
 
   useEffect(() => {
     if (walletAddress) {
@@ -21,7 +23,7 @@ export default function RiskScoreDisplay({ walletAddress }) {
   async function fetchRiskData() {
     setLoading(true);
     setError(null);
-    
+
     try {
       const data = await fetchRiskScoreData(walletAddress);
       setRiskData(data);
@@ -72,32 +74,43 @@ export default function RiskScoreDisplay({ walletAddress }) {
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
       <div className="bg-gradient-to-r from-primary to-purple-600 rounded-lg shadow-lg p-8 text-white">
-        
-        <h2 className="text-3xl font-bold mb-8 text-center">
-          {riskData.levelEmoji} Wallet Security Score
-        </h2>
+
+        <div className="flex justify-between items-start mb-8">
+          <h2 className="text-3xl font-bold">
+            {riskData.levelEmoji} Wallet Security Score
+          </h2>
+
+          {/* Report Wallet Button */}
+          <button
+            onClick={() => setShowReportModal(true)}
+            className="px-4 py-2 bg-red-500 bg-opacity-20 hover:bg-opacity-30 border border-red-400 text-white font-semibold rounded-lg flex items-center gap-2 transition-colors"
+          >
+            <span>🚨</span>
+            <span>Report Wallet</span>
+          </button>
+        </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          
+
           {/* Left: Score Circle */}
           <div className="flex flex-col items-center justify-center">
             <CircularProgress score={riskData.score} size={200} strokeWidth={20} />
-            
+
             <div className="mt-6 text-center">
               <p className="text-2xl font-bold">{riskData.levelLabel}</p>
               <p className="text-sm opacity-90 mt-1">
                 {riskData.score >= 90 ? 'Your wallet is highly secure!' :
-                 riskData.score >= 75 ? 'Your wallet is secure' :
-                 riskData.score >= 60 ? 'Your wallet has some risks' :
-                 riskData.score >= 40 ? 'Your wallet has several risks' :
-                 'Your wallet has critical risks!'}
+                  riskData.score >= 75 ? 'Your wallet is secure' :
+                    riskData.score >= 60 ? 'Your wallet has some risks' :
+                      riskData.score >= 40 ? 'Your wallet has several risks' :
+                        'Your wallet has critical risks!'}
               </p>
             </div>
           </div>
 
           {/* Right: Breakdown */}
           <div className="space-y-4">
-            
+
             {/* Deductions */}
             {riskData.breakdown.deductions.length > 0 && (
               <div className="bg-white bg-opacity-20 rounded-lg p-4">
@@ -167,7 +180,7 @@ export default function RiskScoreDisplay({ walletAddress }) {
                 <span className="font-bold text-2xl">{potentialScore}</span>
               </div>
             </div>
-            
+
             <div className="space-y-3">
               {suggestions.map((suggestion, index) => (
                 <div key={index} className="bg-white bg-opacity-10 rounded-lg p-4">
@@ -190,6 +203,14 @@ export default function RiskScoreDisplay({ walletAddress }) {
         )}
 
       </div>
+
+      {/* Report Modal */}
+      <ReportScamModal
+        isOpen={showReportModal}
+        onClose={() => setShowReportModal(false)}
+        scamAddress={walletAddress}
+        tokenName="Wallet Address"
+      />
     </div>
   );
 }

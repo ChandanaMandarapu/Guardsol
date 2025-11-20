@@ -7,34 +7,24 @@ export default function CommunityReports({ address }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (address) {
-      loadReports();
+    if (!address) return;
+
+    async function fetchReports() {
+      try {
+        const data = await getCommunityReports(address);
+        setReports(data);
+      } catch (err) {
+        console.error("Error fetching community reports", err);
+      } finally {
+        setLoading(false);
+      }
     }
+
+    fetchReports();
   }, [address]);
 
-  async function loadReports() {
-    setLoading(true);
-    try {
-      const data = await getCommunityReports(address);
-      setReports(data);
-    } catch (error) {
-      console.error('Error loading reports:', error);
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  if (loading) {
-    return (
-      <div className="text-xs text-gray-500 mb-2">
-        Checking community reports...
-      </div>
-    );
-  }
-
-  if (!reports || reports.reportCount === 0) {
-    return null; // No reports to show
-  }
+  if (loading) return null;
+  if (!reports || reports.reportCount === 0) return null;
 
   // Determine badge style based on severity
   let badgeColor = 'bg-yellow-100 text-yellow-800 border-yellow-200';
@@ -57,7 +47,7 @@ export default function CommunityReports({ address }) {
         <span className="text-lg">{icon}</span>
         <p className="text-sm font-semibold">{label}</p>
       </div>
-      
+
       <p className="text-xs mb-2">
         {reports.reportCount} user{reports.reportCount !== 1 ? 's' : ''} reported this
       </p>
@@ -78,9 +68,11 @@ export default function CommunityReports({ address }) {
           <div className="w-full bg-gray-200 rounded-full h-2">
             <div
               className={`h-2 rounded-full transition-all ${
-                reports.confidence >= 70 ? 'bg-red-600' :
-                reports.confidence >= 50 ? 'bg-orange-500' :
-                'bg-yellow-500'
+                reports.confidence >= 70
+                  ? 'bg-red-600'
+                  : reports.confidence >= 50
+                  ? 'bg-orange-500'
+                  : 'bg-yellow-500'
               }`}
               style={{ width: `${reports.confidence}%` }}
             />

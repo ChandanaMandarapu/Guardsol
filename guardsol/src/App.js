@@ -7,6 +7,7 @@ import RiskScoreDisplay from './components/RiskScoreDisplay';
 import TokenStats from './components/TokenStats';
 import ApprovalScanner from './components/ApprovalScanner';
 import TokenList from './components/TokenList';
+import AdminPanel from './components/AdminPanel';
 import { validateConfig } from './utils/config';
 
 function AppContent() {
@@ -14,6 +15,7 @@ function AppContent() {
   const [activeAddress, setActiveAddress] = useState(null);
   const [tokens, setTokens] = useState([]);
   const [tokensLoading, setTokensLoading] = useState(false);
+  const [currentPage, setCurrentPage] = useState('home'); // 'home' or 'admin'
   const { publicKey, connected } = useWallet();
 
   // Update activeAddress when wallet connects/disconnects
@@ -43,30 +45,36 @@ function AppContent() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Header />
+      <Header currentPage={currentPage} setCurrentPage={setCurrentPage} />
       
-      <main>
-        {/* Pass activeAddress state down to WalletInfo */}
-        <WalletInfo 
-          activeAddress={activeAddress}
-          setActiveAddress={setActiveAddress}
-        />
-        
-        {/* Pass activeAddress to all components that need it */}
-        <RiskScoreDisplay walletAddress={activeAddress} />
-        
-        <TokenStats tokens={tokens} />
-        
-        <ApprovalScanner 
-          walletAddress={activeAddress}
-          tokens={tokens}
-          tokensLoading={tokensLoading}
-        />
-        <TokenList 
-  tokens={tokens} 
-  loading={tokensLoading} 
-/>
-      </main>
+      {currentPage === 'admin' ? (
+        // Admin Panel
+        <main>
+          <AdminPanel />
+        </main>
+      ) : (
+        // Home Page
+        <main>
+          {/* Pass activeAddress state down to WalletInfo */}
+          <WalletInfo 
+            activeAddress={activeAddress}
+            setActiveAddress={setActiveAddress}
+          />
+          
+          {/* Pass activeAddress to all components that need it */}
+          <RiskScoreDisplay walletAddress={activeAddress} />
+          
+          <TokenStats tokens={tokens} />
+          
+          <ApprovalScanner 
+            walletAddress={activeAddress}
+            tokens={tokens}
+            tokensLoading={tokensLoading}
+          />
+
+          <TokenList tokens={tokens} loading={tokensLoading} />
+        </main>
+      )}
       
       <footer className="bg-white border-t border-gray-200 mt-12">
         <div className="max-w-7xl mx-auto px-4 py-6">
