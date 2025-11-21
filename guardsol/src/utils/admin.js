@@ -1,28 +1,19 @@
-// src/utils/admin.js
-// FULLY FIXED: Admin utility functions with proper verification
 import { supabase } from './supabaseClient';
 
-// YOUR ADMIN WALLET ADDRESS
+
 const ADMIN_WALLET = 'EB51DpnWfwM91HHipvub1VCcz5bSrJ7cjNentHcvgRBM';
 
-/**
- * Check if wallet address is admin
- */
+
 export function isAdmin(walletAddress) {
   if (!walletAddress) return false;
   return walletAddress.toLowerCase() === ADMIN_WALLET.toLowerCase();
 }
 
-/**
- * Check if in demo mode (not admin but viewing)
- */
 export function isDemoMode(walletAddress) {
   return !isAdmin(walletAddress);
 }
 
-/**
- * Get all reports from database
- */
+
 export async function getAllReports() {
   try {
     const { data, error } = await supabase
@@ -40,9 +31,7 @@ export async function getAllReports() {
   }
 }
 
-/**
- * Get pending reports (not verified)
- */
+
 export async function getPendingReports() {
   try {
     const { data, error } = await supabase
@@ -61,9 +50,7 @@ export async function getPendingReports() {
   }
 }
 
-/**
- * Get verified reports
- */
+
 export async function getVerifiedReports() {
   try {
     const { data, error } = await supabase
@@ -82,10 +69,7 @@ export async function getVerifiedReports() {
   }
 }
 
-/**
- * Verify a report (admin only) - CLIENT-SIDE VERSION
- * This updates Supabase directly without API endpoint
- */
+
 export async function verifyReport(reportId, adminWallet, verdict) {
   try {
     console.log('🔐 Verifying report:', reportId, 'Verdict:', verdict);
@@ -162,23 +146,17 @@ export async function verifyReport(reportId, adminWallet, verdict) {
   }
 }
 
-/**
- * Approve a report (wrapper for verifyReport)
- */
+
 export async function approveReport(reportId, adminWallet) {
   return verifyReport(reportId, adminWallet, 'approve');
 }
 
-/**
- * Reject a report (wrapper for verifyReport)
- */
+
 export async function rejectReport(reportId, adminWallet) {
   return verifyReport(reportId, adminWallet, 'reject');
 }
 
-/**
- * Get reporter stats
- */
+
 export async function getReporterStats(walletAddress) {
   // Handle null/undefined or 'Anonymous'
   if (!walletAddress || walletAddress === 'Anonymous') {

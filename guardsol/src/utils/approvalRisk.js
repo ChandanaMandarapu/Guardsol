@@ -7,7 +7,7 @@ export async function calculateApprovalRisk(approval) {
   
   console.log('🎯 Scoring:', approval.tokenName);
   
-  // FACTOR 1: Unlimited approval (+60 points)
+  // Unlimited approval (+60 points)
   if (approval.isUnlimited) {
     riskScore += 60;
     riskFactors.push({
@@ -29,7 +29,7 @@ export async function calculateApprovalRisk(approval) {
   // Get delegate intelligence
   const delegateInfo = await getDelegateIntelligence(approval.delegate);
   
-  // FACTOR 2: Known scammer (+30 points)
+  // Known scammer (+30 points)
   if (delegateInfo.isScammer) {
     riskScore += 30;
     riskFactors.push({
@@ -40,7 +40,7 @@ export async function calculateApprovalRisk(approval) {
     });
   }
   
-  // FACTOR 3: Delegate wallet age (+20 points if very new)
+  // Delegate wallet age (+20 points if very new)
   if (delegateInfo.age < 7) {
     riskScore += 20;
     riskFactors.push({
@@ -59,7 +59,7 @@ export async function calculateApprovalRisk(approval) {
     });
   }
   
-  // FACTOR 4: Transaction count (+10 if very few)
+  // Transaction count (+10 if very few)
   if (delegateInfo.txCount < 10) {
     riskScore += 10;
     riskFactors.push({
