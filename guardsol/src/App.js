@@ -8,6 +8,7 @@ import TokenStats from './components/TokenStats';
 import ApprovalScanner from './components/ApprovalScanner';
 import TokenList from './components/TokenList';
 import AdminPanel from './components/AdminPanel';
+import NetworkStats from './components/NetworkStats';
 import { validateConfig } from './utils/config';
 
 function AppContent() {
@@ -46,7 +47,7 @@ function AppContent() {
   return (
     <div className="min-h-screen bg-gray-50">
       <Header currentPage={currentPage} setCurrentPage={setCurrentPage} />
-      
+
       {currentPage === 'admin' ? (
         // Admin Panel
         <main>
@@ -56,17 +57,23 @@ function AppContent() {
         // Home Page
         <main>
           {/* Pass activeAddress state down to WalletInfo */}
-          <WalletInfo 
+          <WalletInfo
             activeAddress={activeAddress}
             setActiveAddress={setActiveAddress}
           />
-          
+
+          {/* Network Stats Dashboard (Day 11) */}
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8">
+            <NetworkStats />
+          </div>
+
+
           {/* Pass activeAddress to all components that need it */}
           <RiskScoreDisplay walletAddress={activeAddress} />
-          
+
           <TokenStats tokens={tokens} />
-          
-          <ApprovalScanner 
+
+          <ApprovalScanner
             walletAddress={activeAddress}
             tokens={tokens}
             tokensLoading={tokensLoading}
@@ -75,7 +82,7 @@ function AppContent() {
           <TokenList tokens={tokens} loading={tokensLoading} />
         </main>
       )}
-      
+
       <footer className="bg-white border-t border-gray-200 mt-12">
         <div className="max-w-7xl mx-auto px-4 py-6">
           <p className="text-center text-sm text-gray-500">
@@ -94,7 +101,7 @@ function App() {
   useEffect(() => {
     validateConfig();
   }, []);
-  
+
   return (
     <WalletContextProvider>
       <AppContent />
