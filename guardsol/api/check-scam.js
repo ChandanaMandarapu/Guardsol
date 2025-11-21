@@ -18,7 +18,7 @@ export default async function handler(req, res) {
       process.env.SUPABASE_SERVICE_KEY
     );
 
-    // Get all reports with votes
+    // getting all reports with votes
     const { data: reports, error } = await supabase
       .from('scam_reports')
       .select(`
@@ -39,7 +39,7 @@ export default async function handler(req, res) {
       });
     }
 
-    // Calculate confidence
+    // calculating confidence
     let totalReports = reports.length;
     let verifiedReports = reports.filter(r => r.verified).length;
 

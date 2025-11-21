@@ -1,4 +1,3 @@
-// api/verify-report.js
 import { createClient } from '@supabase/supabase-js';
 import nacl from 'tweetnacl';
 import bs58 from 'bs58';

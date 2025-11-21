@@ -1,7 +1,7 @@
 import { createClient } from '@supabase/supabase-js';
 
 export default async function handler(req, res) {
-    // Allow CORS
+    // allow CORS
     res.setHeader('Access-Control-Allow-Credentials', true);
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
@@ -25,14 +25,14 @@ export default async function handler(req, res) {
             process.env.SUPABASE_SERVICE_KEY
         );
 
-        // 1. Get Total Reports Count
+        // Get Total Reports Count
         const { count: totalReports, error: countError } = await supabase
             .from('scam_reports')
             .select('*', { count: 'exact', head: true });
 
         if (countError) throw countError;
 
-        // 2. Get Verified Reports Count
+        // Get Verified Reports Count
         const { count: verifiedReports, error: verifiedError } = await supabase
             .from('scam_reports')
             .select('*', { count: 'exact', head: true })
@@ -40,7 +40,7 @@ export default async function handler(req, res) {
 
         if (verifiedError) throw verifiedError;
 
-        // 3. Get Recent Reports (Last 5)
+        // Get Recent Reports (Last 5)
         const { data: recentReports, error: recentError } = await supabase
             .from('scam_reports')
             .select('id, reported_address, scam_type, created_at, verified')
@@ -49,7 +49,7 @@ export default async function handler(req, res) {
 
         if (recentError) throw recentError;
 
-        // 4. Estimate Active Users (Unique reporters)
+        // Estimate Active Users (Unique reporters)
         // Note: This is an estimation as Supabase doesn't have a distinct count API easily without RPC
         // We will just count rows in user_reputation as a proxy for "Active Participants"
         const { count: activeUsers, error: usersError } = await supabase

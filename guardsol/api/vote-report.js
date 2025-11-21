@@ -14,7 +14,7 @@ export default async function handler(req, res) {
             return res.status(400).json({ error: 'Missing required fields' });
         }
 
-        // 1. VERIFY SIGNATURE
+        // VERIFY SIGNATURE
         const message = `Vote on report: ${reportId} - ${voteType}`;
         const messageBytes = new TextEncoder().encode(message);
         const signatureBytes = bs58.decode(signature);
@@ -35,7 +35,7 @@ export default async function handler(req, res) {
             process.env.SUPABASE_SERVICE_KEY
         );
 
-        // 2. GET VOTER REPUTATION
+        // GET VOTER REPUTATION
         const { data: voter } = await supabase
             .from('user_reputation')
             .select('*')
@@ -48,7 +48,7 @@ export default async function handler(req, res) {
             });
         }
 
-        // 3. CHECK IF ALREADY VOTED
+        // CHECK IF ALREADY VOTED
         const { data: existing } = await supabase
             .from('report_votes')
             .select('*')
@@ -78,7 +78,7 @@ export default async function handler(req, res) {
                 });
         }
 
-        // 4. CALCULATE WEIGHTED SCORE (Quadratic Voting)
+        // CALCULATE WEIGHTED SCORE (Quadratic Voting)
         const { data: allVotes } = await supabase
             .from('report_votes')
             .select('vote_type, voter_reputation')
