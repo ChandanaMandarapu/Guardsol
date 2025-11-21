@@ -1,5 +1,3 @@
-// src/utils/community-api.js
-// LOCAL API FUNCTIONS (No backend needed for now)
 
 import { supabase } from './supabaseClient';
 import bs58 from 'bs58';
@@ -195,3 +193,4 @@ export async function signMessageWithWallet(message, wallet) {
 
   return signatureBase58;
 }
+// the amount of i changed this codeeee hoooooooooooooooooooooooooooooooooooo - venmathiye nov21252331

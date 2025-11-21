@@ -1,14 +1,13 @@
-// Simple caching system using localStorage
-// Stores data with timestamp, expires after 24 hours
+// Simple caching system using localStorage stores data with timestamp, expires after 24 hours
 
-const CACHE_DURATION = 24 * 60 * 60 * 1000; // 24 hours
+const CACHE_DURATION = 24 * 60 * 60 * 1000; 
 
 // Generate cache key
 function getCacheKey(prefix, identifier) {
   return `guardsol_${prefix}_${identifier}`;
 }
 
-// Get data from cache
+// data from cache
 export function getCachedData(prefix, identifier) {
   try {
     const key = getCacheKey(prefix, identifier);

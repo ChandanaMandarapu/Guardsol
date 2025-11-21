@@ -1,6 +1,5 @@
 import { calculateApprovalRisk } from './approvalRisk';
 
-// Extract approvals from tokens
 export function extractApprovals(tokens) {
   console.log('🔍 Extracting approvals from', tokens.length, 'tokens...');
   
