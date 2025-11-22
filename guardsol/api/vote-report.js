@@ -93,6 +93,32 @@ export default async function handler(req, res) {
             weightedScore += vote.vote_type === 'confirm' ? weight : -weight;
         });
 
+        // Auto-verify if consensus reached
+        const CONSENSUS_THRESHOLD = 20; // Tunable
+
+        if (weightedScore > CONSENSUS_THRESHOLD) {
+            // Fetch report to check if already verified
+            const { data: report } = await supabase
+                .from('scam_reports')
+                .select('verified')
+                .eq('id', reportId)
+                .single();
+
+            if (report && !report.verified) {
+                // Auto-verify based on community consensus
+                await supabase
+                    .from('scam_reports')
+                    .update({
+                        verified: true,
+                        verified_by: 'community_consensus',
+                        verified_at: new Date().toISOString()
+                    })
+                    .eq('id', reportId);
+
+                console.log('✅ Auto-verified via consensus');
+            }
+        }
+
         return res.status(200).json({
             success: true,
             weightedScore,

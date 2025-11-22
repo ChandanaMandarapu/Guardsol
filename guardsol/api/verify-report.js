@@ -15,13 +15,13 @@ export default async function handler(req, res) {
     const messageBytes = new TextEncoder().encode(message);
     const signatureBytes = bs58.decode(signature);
     const publicKeyBytes = bs58.decode(adminWallet);
-    
+
     const verified = nacl.sign.detached.verify(
       messageBytes,
       signatureBytes,
       publicKeyBytes
     );
-    
+
     if (!verified || adminWallet !== process.env.ADMIN_WALLET_ADDRESS) {
       return res.status(403).json({ error: 'Unauthorized - Not admin' });
     }
@@ -44,6 +44,46 @@ export default async function handler(req, res) {
       .single();
 
     if (error) throw error;
+
+    if (verdict === 'approve') {
+      // Add to permanent scam database
+      try {
+        // Check if already exists
+        const { data: existing } = await supabase
+          .from('scam_database')
+          .select('*')
+          .eq('address', data.reported_address)
+          .single();
+
+        if (existing) {
+          // Increment report count
+          await supabase
+            .from('scam_database')
+            .update({
+              report_count: existing.report_count + 1,
+              verified: true
+            })
+            .eq('address', data.reported_address);
+        } else {
+          // Insert new entry
+          await supabase
+            .from('scam_database')
+            .insert({
+              address: data.reported_address,
+              name: data.reason || 'Community Reported Scam',
+              reason: data.reason,
+              verified: true,
+              report_count: 1,
+              source_url: data.evidence_url,
+              created_at: new Date().toISOString()
+            });
+        }
+
+        console.log('✅ Added to scam database');
+      } catch (dbError) {
+        console.error('Failed to update scam database:', dbError);
+      }
+    }
 
     // Update reporter reputation
     const repChange = verdict === 'approve' ? 5 : -10;
