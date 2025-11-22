@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../utils/supabaseClient';
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 
 export default function NetworkStats() {
     const [stats, setStats] = useState(null);
@@ -15,38 +16,12 @@ export default function NetworkStats() {
 
     async function fetchStats() {
         try {
-            // Total Reports
-            const { count: totalReports } = await supabase
-                .from('scam_reports')
-                .select('*', { count: 'exact', head: true });
+            // Use our new API endpoint
+            const response = await fetch('/api/get-stats');
+            if (!response.ok) throw new Error('Failed to fetch stats');
 
-            // Verified Reports
-            const { count: verifiedReports } = await supabase
-                .from('scam_reports')
-                .select('*', { count: 'exact', head: true })
-                .eq('verified', true);
-
-            // Active Users (Proxy via reputation table)
-            const { count: activeUsers } = await supabase
-                .from('user_reputation')
-                .select('*', { count: 'exact', head: true });
-
-            // Recent Reports
-            const { data: recentReports } = await supabase
-                .from('scam_reports')
-                .select('id, reported_address, scam_type, created_at, verified')
-                .order('created_at', { ascending: false })
-                .limit(5);
-
-            setStats({
-                stats: {
-                    totalReports: totalReports || 0,
-                    verifiedReports: verifiedReports || 0,
-                    activeUsers: activeUsers || 0,
-                    scamsPrevented: (verifiedReports || 0) * 12
-                },
-                recentReports: recentReports || []
-            });
+            const data = await response.json();
+            setStats(data);
             setError(null);
         } catch (err) {
             console.error('Error fetching network stats:', err);
@@ -58,7 +33,9 @@ export default function NetworkStats() {
 
     if (error || !stats) return null;
 
-    const { stats: metrics, recentReports } = stats;
+    if (error || !stats) return null;
+
+    const { stats: metrics, chartData, topScams } = stats;
 
     return (
         <div className="mb-12 space-y-8">
@@ -66,6 +43,17 @@ export default function NetworkStats() {
             <div className="text-center">
                 <h2 className="text-2xl font-bold text-gray-900">🛡️ Network Status</h2>
                 <p className="text-gray-500">Real-time protection metrics from the GuardSol community</p>
+
+                {/* Network Effect Banner */}
+                <div className="mt-4 inline-block bg-indigo-50 border border-indigo-100 rounded-full px-4 py-1.5">
+                    <p className="text-sm text-indigo-700 font-medium flex items-center gap-2">
+                        <span className="relative flex h-2 w-2">
+                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
+                            <span className="relative inline-flex rounded-full h-2 w-2 bg-indigo-500"></span>
+                        </span>
+                        Join {metrics.activeUsers.toLocaleString()} others securing the Solana ecosystem
+                    </p>
+                </div>
             </div>
 
             {/* Stat Cards */}
@@ -96,51 +84,62 @@ export default function NetworkStats() {
                 />
             </div>
 
-            {/* Live Feed */}
-            {recentReports && recentReports.length > 0 && (
-                <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-                    <div className="px-4 py-3 bg-gray-50 border-b border-gray-200 flex justify-between items-center">
-                        <h3 className="font-semibold text-gray-700 flex items-center gap-2">
-                            <span className="relative flex h-3 w-3">
-                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-                                <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
-                            </span>
-                            Live Reports Feed
-                        </h3>
-                        <span className="text-xs text-gray-500">Auto-updating</span>
-                    </div>
-                    <div className="divide-y divide-gray-100">
-                        {recentReports.map((report) => (
-                            <div key={report.id} className="px-4 py-3 flex items-center justify-between hover:bg-gray-50 transition-colors">
-                                <div className="flex items-center gap-3">
-                                    <div className="p-2 bg-red-100 rounded-lg">
-                                        <span className="text-xl">🚨</span>
-                                    </div>
-                                    <div>
-                                        <p className="font-medium text-gray-900 text-sm">
-                                            {report.scam_type || 'Suspicious Activity'}
-                                        </p>
-                                        <p className="text-xs text-gray-500 font-mono">
-                                            {report.reported_address.slice(0, 4)}...{report.reported_address.slice(-4)}
-                                        </p>
-                                    </div>
-                                </div>
-                                <div className="text-right">
-                                    <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${report.verified
-                                        ? 'bg-green-100 text-green-800'
-                                        : 'bg-yellow-100 text-yellow-800'
-                                        }`}>
-                                        {report.verified ? 'Verified' : 'Pending'}
-                                    </span>
-                                    <p className="text-xs text-gray-400 mt-1">
-                                        {new Date(report.created_at).toLocaleTimeString()}
-                                    </p>
-                                </div>
-                            </div>
-                        ))}
+            {/* Charts and Leaderboard Grid */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+
+                {/* Growth Chart */}
+                <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
+                    <h3 className="font-bold text-lg mb-6 text-gray-800">📊 Weekly Activity</h3>
+                    <div className="h-64 w-full">
+                        <ResponsiveContainer width="100%" height="100%">
+                            <BarChart data={chartData}>
+                                <XAxis dataKey="date" fontSize={12} tickLine={false} axisLine={false} />
+                                <YAxis fontSize={12} tickLine={false} axisLine={false} />
+                                <Tooltip
+                                    cursor={{ fill: '#F3F4F6' }}
+                                    contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}
+                                />
+                                <Bar dataKey="count" fill="#4F46E5" radius={[4, 4, 0, 0]} />
+                            </BarChart>
+                        </ResponsiveContainer>
                     </div>
                 </div>
-            )}
+
+                {/* Top Scams Leaderboard */}
+                <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+                    <div className="p-6 border-b border-gray-100">
+                        <h3 className="font-bold text-lg text-gray-800">🚫 Top Detected Threats</h3>
+                    </div>
+                    <div className="divide-y divide-gray-100">
+                        {topScams && topScams.length > 0 ? (
+                            topScams.map((scam, index) => (
+                                <div key={index} className="p-4 flex items-center justify-between hover:bg-gray-50 transition-colors">
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-8 h-8 rounded-full bg-red-100 text-red-600 flex items-center justify-center font-bold text-sm">
+                                            {index + 1}
+                                        </div>
+                                        <div>
+                                            <p className="font-mono text-sm font-medium text-gray-900">
+                                                {scam.address.slice(0, 4)}...{scam.address.slice(-4)}
+                                            </p>
+                                            <p className="text-xs text-gray-500">{scam.type}</p>
+                                        </div>
+                                    </div>
+                                    <div className="text-right">
+                                        <div className="font-bold text-gray-900">{scam.count}</div>
+                                        <div className="text-xs text-gray-500">Reports</div>
+                                    </div>
+                                </div>
+                            ))
+                        ) : (
+                            <div className="p-8 text-center text-gray-500">
+                                No threats detected yet.
+                            </div>
+                        )}
+                    </div>
+                </div>
+
+            </div>
         </div>
     );
 }

@@ -1,11 +1,15 @@
 import React, { useState } from 'react';
 import VotingButton from './VotingButton';
 import { approveReport, rejectReport, getReporterStats } from '../utils/admin';
+import DisputeModal from './DisputeModal';
+import { useWallet } from '@solana/wallet-adapter-react';
 
 export default function ReportCard({ report, isAdmin, adminWallet, onUpdate }) {
   const [processing, setProcessing] = useState(false);
   const [showDetails, setShowDetails] = useState(false);
   const [reporterStats, setReporterStats] = useState(null);
+  const [showDisputeModal, setShowDisputeModal] = useState(false);
+  const { connected } = useWallet();
 
   React.useEffect(() => {
     loadReporterStats();
@@ -71,8 +75,20 @@ export default function ReportCard({ report, isAdmin, adminWallet, onUpdate }) {
           </p>
         </div>
 
-        {/* Voting */}
-        <VotingButton reportId={report.id} />
+        {/* Voting and Dispute */}
+        <div className="flex flex-col items-end gap-2">
+          <VotingButton reportId={report.id} />
+
+          {/* Dispute Button - Only for verified reports */}
+          {report.verified && connected && (
+            <button
+              onClick={() => setShowDisputeModal(true)}
+              className="text-xs text-gray-500 hover:text-red-600 underline"
+            >
+              Dispute this report
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Reporter Info */}
@@ -173,6 +189,13 @@ export default function ReportCard({ report, isAdmin, adminWallet, onUpdate }) {
           </div>
         </div>
       )}
+
+      <DisputeModal
+        isOpen={showDisputeModal}
+        onClose={() => setShowDisputeModal(false)}
+        reportId={report.id}
+        reportedAddress={report.reported_address}
+      />
     </div>
   );
 }
