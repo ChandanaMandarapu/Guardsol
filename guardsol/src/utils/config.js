@@ -1,4 +1,4 @@
-// Centralized config for all environment variables
+// Centralized config for all environment variables hehe took help from GPT
 export const config = {
   // Solana Network
   network: process.env.REACT_APP_NETWORK || 'mainnet-beta',

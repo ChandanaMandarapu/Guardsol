@@ -1,6 +1,3 @@
-// src/utils/revoke.js
-// COMPLETE REVOKE FUNCTIONALITY FOR DAY 5
-
 import { Transaction, PublicKey } from '@solana/web3.js';
 import { createRevokeInstruction, TOKEN_PROGRAM_ID } from '@solana/spl-token';
 import { connection } from './solana';
@@ -15,7 +12,7 @@ export async function revokeApproval(tokenAccountAddress, wallet) {
   console.log('🗑️ Starting revoke for:', tokenAccountAddress.slice(0, 8));
   
   try {
-    // 1. VALIDATE INPUTS
+    // VALIDATE INPUTS
     if (!wallet || !wallet.publicKey) {
       throw new Error('Wallet not connected');
     }
@@ -24,14 +21,14 @@ export async function revokeApproval(tokenAccountAddress, wallet) {
       throw new Error('Wallet does not support signing transactions');
     }
     
-    // 2. CREATE PUBLIC KEYS
+    // CREATE PUBLIC KEYS
     const tokenAccount = new PublicKey(tokenAccountAddress);
     const owner = wallet.publicKey;
     
     console.log('📝 Creating revoke instruction...');
     
-    // 3. CREATE REVOKE INSTRUCTION
-    // This is the SPL Token instruction that removes delegate
+    // CREATE REVOKE INSTRUCTION
+    // This is the SPL Token instruction that removes delegate - manake vachay ilanti ideas
     const revokeInstruction = createRevokeInstruction(
       tokenAccount,      // Token account to revoke from
       owner,             // Owner of the token account
@@ -41,11 +38,11 @@ export async function revokeApproval(tokenAccountAddress, wallet) {
     
     console.log('📦 Building transaction...');
     
-    // 4. CREATE TRANSACTION
+    // CREATE TRANSACTION
     const transaction = new Transaction();
     transaction.add(revokeInstruction);
     
-    // 5. GET LATEST BLOCKHASH
+    // GET LATEST BLOCKHASH
     const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash('confirmed');
     transaction.recentBlockhash = blockhash;
     transaction.lastValidBlockHeight = lastValidBlockHeight;
@@ -130,15 +127,15 @@ export async function estimateRevokeFee() {
 
 /**
  * Batch revoke multiple approvals
- * @param {Array<string>} tokenAccountAddresses - Array of token accounts
- * @param {Object} wallet - Connected wallet
+ * @param {Array<string>} tokenAccountAddresses - rray of token accounts
+ * @param {Object} wallet - connected wallet ammaa
  * @returns {Promise<Object>} Result with success/error
  */
 export async function batchRevokeApprovals(tokenAccountAddresses, wallet) {
   console.log('🗑️ Batch revoking:', tokenAccountAddresses.length, 'approvals');
   
   try {
-    // 1. VALIDATE
+    // VALIDATE
     if (!wallet || !wallet.publicKey) {
       throw new Error('Wallet not connected');
     }
@@ -147,7 +144,7 @@ export async function batchRevokeApprovals(tokenAccountAddresses, wallet) {
       throw new Error('No approvals selected');
     }
     
-    // 2. LIMIT CHECK (Solana transactions have size limits)
+    // LIMIT CHECK (Solana transactions have size limits)
     if (tokenAccountAddresses.length > 20) {
       throw new Error('Too many approvals. Maximum 20 per batch. Please select fewer.');
     }
@@ -156,7 +153,7 @@ export async function batchRevokeApprovals(tokenAccountAddresses, wallet) {
     
     console.log('📝 Creating', tokenAccountAddresses.length, 'revoke instructions...');
     
-    // 3. CREATE ALL INSTRUCTIONS
+    // CREATE ALL INSTRUCTIONS
     const instructions = tokenAccountAddresses.map(address => {
       const tokenAccount = new PublicKey(address);
       return createRevokeInstruction(
@@ -167,11 +164,11 @@ export async function batchRevokeApprovals(tokenAccountAddresses, wallet) {
       );
     });
     
-    // 4. BUILD TRANSACTION WITH ALL INSTRUCTIONS
+    // BUILD TRANSACTION WITH ALL INSTRUCTIONS
     const transaction = new Transaction();
     instructions.forEach(instruction => transaction.add(instruction));
     
-    // 5. GET BLOCKHASH
+    // GET BLOCKHASH
     const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash('confirmed');
     transaction.recentBlockhash = blockhash;
     transaction.lastValidBlockHeight = lastValidBlockHeight;
@@ -179,12 +176,12 @@ export async function batchRevokeApprovals(tokenAccountAddresses, wallet) {
     
     console.log('✍️ Requesting wallet signature for batch transaction...');
     
-    // 6. SIGN
+    // SIGN
     const signedTransaction = await wallet.signTransaction(transaction);
     
     console.log('📡 Sending batch transaction...');
     
-    // 7. SEND
+    // SEND
     const signature = await connection.sendRawTransaction(
       signedTransaction.serialize(),
       {
@@ -196,7 +193,7 @@ export async function batchRevokeApprovals(tokenAccountAddresses, wallet) {
     console.log('⏳ Confirming batch transaction...');
     console.log('Signature:', signature);
     
-    // 8. CONFIRM
+    // CONFIRM
     const confirmation = await connection.confirmTransaction(
       {
         signature,

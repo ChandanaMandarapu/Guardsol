@@ -1,8 +1,5 @@
-// src/utils/riskScore.js
-// COMPLETE RISK SCORE ALGORITHM FOR DAY 6
-
 /**
- * Calculate comprehensive wallet risk score (0-100)
+ * em ledhu calculating comprehensive wallet risk score (0-100)
  * Higher score = Better security
  * @param {Object} walletData - All wallet data
  * @returns {Object} Score with breakdown
@@ -10,7 +7,7 @@
 export function calculateWalletRiskScore(walletData) {
   console.log('🎯 Calculating wallet risk score...');
   
-  // START AT PERFECT SCORE
+  // PERFECT SCORE 
   let score = 100;
   
   const breakdown = {
@@ -19,7 +16,7 @@ export function calculateWalletRiskScore(walletData) {
     totalDeducted: 0,
     totalBonuses: 0
   };
-  
+  // hooo koncham proffesional comments rasanu 
   // ============================================
   // FACTOR 1: TOKEN APPROVALS (40% weight - BIGGEST RISK)
   // ============================================
@@ -287,4 +284,4 @@ export function getScoreColor(score) {
   if (score >= 60) return '#eab308'; // yellow
   if (score >= 40) return '#f97316'; // orange
   return '#ef4444'; // red
-}
+} //sarleyyy parleyy goodd 

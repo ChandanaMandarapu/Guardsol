@@ -1,4 +1,3 @@
-// src/utils/riskScoreData.js
 // FETCHES ALL DATA NEEDED FOR RISK SCORE CALCULATION
 
 import { fetchAllTokens } from './tokens';
@@ -25,22 +24,22 @@ export async function fetchRiskScoreData(walletAddress) {
     
     console.log('📡 Fetching fresh data...');
     
-    // STEP 1: Fetch all tokens (includes scam detection)
+    // Fetch all tokens (includes scam detection)
     console.log('📡 Fetching tokens...');
     const tokens = await fetchAllTokens(walletAddress);
     console.log('✅ Fetched', tokens.length, 'tokens');
     
-    // STEP 2: Get approvals from tokens with risk analysis
+    // Get approvals from tokens with risk analysis
     console.log('📡 Analyzing approvals...');
     const approvals = await getApprovalsWithRisk(tokens);
     console.log('✅ Found', approvals.length, 'approvals');
     
-    // STEP 3: Get wallet age
+    // Get wallet age
     console.log('📡 Fetching wallet age...');
     const walletAge = await getWalletAge(walletAddress);
     console.log('✅ Wallet age:', walletAge, 'days');
     
-    // STEP 4: Prepare data object for risk calculation
+    // Prepare data object for risk calculation
     const data = {
       tokens,
       approvals,
@@ -48,11 +47,11 @@ export async function fetchRiskScoreData(walletAddress) {
       recentScamInteractions: 0 // Can add this later if tracking transaction history
     };
     
-    // STEP 5: Calculate risk score
+    // Calculate risk score
     console.log('🎯 Calculating risk score...');
     const riskScore = calculateWalletRiskScore(data);
     
-    // STEP 6: Add extra metadata
+    // Add extra metadata
     const result = {
       ...riskScore,
       data: {
@@ -63,7 +62,7 @@ export async function fetchRiskScoreData(walletAddress) {
       }
     };
     
-    // STEP 7: Cache the result (24 hours)
+    // Cache the result (24 hours)
     setCachedData('risk_score', walletAddress, result);
     
     console.log('✅ Risk score calculated:', result.score);
