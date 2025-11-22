@@ -1,7 +1,6 @@
-// src/utils/supabase.js
 import { supabase } from './supabaseClient';
 
-// Check if token address is in scam database (OLD METHOD)
+// Check if token address is in scam database 
 export async function checkIfScam(tokenAddress) {
   try {
     console.log('🔍 Checking database for:', tokenAddress.slice(0, 8));
@@ -27,7 +26,7 @@ export async function checkIfScam(tokenAddress) {
       };
     }
     
-    // NEW: Check community reports
+    //Check community reports
     const communityCheck = await checkCommunityReports(tokenAddress);
     if (communityCheck.isScam) {
       return communityCheck;
@@ -41,7 +40,7 @@ export async function checkIfScam(tokenAddress) {
   }
 }
 
-// NEW: Check community reports
+//Check community reports
 export async function checkCommunityReports(address) {
   try {
     const { data: reports, error } = await supabase

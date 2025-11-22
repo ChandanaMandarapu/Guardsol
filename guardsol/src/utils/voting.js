@@ -1,12 +1,7 @@
-// src/utils/voting.js
-// Voting system for community reports
-
 import { supabase } from './supabaseClient';
 import bs58 from 'bs58';
 
-/**
- * Vote on a report (Secure API)
- */
+//Vote on a report (Secure API
 export async function voteOnReport(wallet, reportId, voteType) {
   try {
     if (!wallet || !wallet.publicKey || !wallet.signMessage) {
@@ -53,9 +48,8 @@ export async function voteOnReport(wallet, reportId, voteType) {
   }
 }
 
-/**
- * Get vote counts for a report
- */
+//Get vote counts for a report
+ 
 export async function getVoteCounts(reportId) {
   try {
     const { data, error } = await supabase
@@ -80,9 +74,9 @@ export async function getVoteCounts(reportId) {
   }
 }
 
-/**
- * Get user's vote on a report
- */
+
+// Get user's vote on a report
+
 export async function getUserVote(reportId, voterWallet) {
   try {
     if (!voterWallet) return null;
@@ -103,9 +97,7 @@ export async function getUserVote(reportId, voterWallet) {
   }
 }
 
-/**
- * Remove vote
- */
+// remove vote
 export async function removeVote(reportId, voterWallet) {
   try {
     const { error } = await supabase

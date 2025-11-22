@@ -7,7 +7,7 @@ export async function calculateScamScore(token) {
   
   console.log('🔍 Scoring:', token.metadata?.name || token.mint.slice(0, 8));
 
-  // --- STEP 1: CHECK OLD DATABASE ---
+  // --- CHECK OLD DATABASE ---
   const dbCheck = await checkIfScam(token.mint);
   if (dbCheck.isScam && dbCheck.source === "database") {
     console.log('🚨 In scam database!');
@@ -18,7 +18,7 @@ export async function calculateScamScore(token) {
     };
   }
 
-  // --- STEP 2: CHECK COMMUNITY REPORTS ---
+  // --- CHECK COMMUNITY REPORTS ---
   const community = await checkCommunityReports(token.mint);
 
   if (community.reportCount > 0) {
@@ -40,19 +40,19 @@ export async function calculateScamScore(token) {
     return { score: 0, reasons, confidence: 'unknown' };
   }
 
-  // FACTOR 2: Mint authority active (+40 points)
+  // Mint authority active (+40 points)
   if (metadata.mintAuthority && metadata.mintAuthority !== 'null') {
     score += 40;
     reasons.push('⚠️ Mint authority active (can create more tokens)');
   }
 
-  // FACTOR 3: Freeze authority exists (+30 points)
+  // Freeze authority exists (+30 points)
   if (metadata.freezeAuthority && metadata.freezeAuthority !== 'null') {
     score += 30;
     reasons.push('⚠️ Freeze authority exists (can freeze tokens)');
   }
 
-  // FACTOR 4: Suspicious keywords (+20 points)
+  // Suspicious keywords (+20 points)
   const suspiciousWords = [
     'CLAIM', 'FREE', 'AIRDROP', 'BONUS', 'REWARD', 'GIFT',
     'WIN', 'PRIZE', 'GIVEAWAY', '🎁', '💰', '$$$'
@@ -66,7 +66,7 @@ export async function calculateScamScore(token) {
     reasons.push('⚠️ Suspicious name pattern');
   }
 
-  // FACTOR 5: Very low holders (+10 points)
+  // Very low holders (+10 points)
   if (metadata.holderCount > 0 && metadata.holderCount < 10) {
     score += 10;
     reasons.push('⚠️ Very few holders (< 10)');

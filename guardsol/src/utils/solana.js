@@ -1,7 +1,7 @@
 import { Connection, PublicKey } from '@solana/web3.js';
 import { config } from './config';
 
-// Using Helius RPC (faster than public RPC)
+// Using Helius RPC 
 export const connection = new Connection(
   config.heliusRpcUrl,
   'confirmed'
