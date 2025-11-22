@@ -12,7 +12,7 @@ import NetworkStats from './components/NetworkStats';
 import { validateConfig } from './utils/config';
 
 function AppContent() {
-  // THIS IS THE KEY FIX: Lift activeAddress state to App level
+  //Lift activeAddress state to App level
   const [activeAddress, setActiveAddress] = useState(null);
   const [tokens, setTokens] = useState([]);
   const [tokensLoading, setTokensLoading] = useState(false);

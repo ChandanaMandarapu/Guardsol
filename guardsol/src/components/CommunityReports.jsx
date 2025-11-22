@@ -1,4 +1,3 @@
-// src/components/CommunityReports.jsx
 import React, { useState, useEffect } from 'react';
 import { getCommunityReports } from '../utils/community-api';
 

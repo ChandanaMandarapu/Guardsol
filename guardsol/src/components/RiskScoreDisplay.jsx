@@ -4,7 +4,7 @@ import { fetchRiskScoreData } from '../utils/riskScoreData';
 import { getImprovementSuggestions, calculatePotentialScore } from '../utils/riskScore';
 import ReportScamModal from './ReportScamModal'; // Import the modal
 
-// FIXED: Now accepts walletAddress as prop
+// Now accepts walletAddress as prop
 export default function RiskScoreDisplay({ walletAddress }) {
   const [riskData, setRiskData] = useState(null);
   const [loading, setLoading] = useState(false);

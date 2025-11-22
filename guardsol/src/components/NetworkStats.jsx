@@ -15,23 +15,23 @@ export default function NetworkStats() {
 
     async function fetchStats() {
         try {
-            // 1. Total Reports
+            // Total Reports
             const { count: totalReports } = await supabase
                 .from('scam_reports')
                 .select('*', { count: 'exact', head: true });
 
-            // 2. Verified Reports
+            // Verified Reports
             const { count: verifiedReports } = await supabase
                 .from('scam_reports')
                 .select('*', { count: 'exact', head: true })
                 .eq('verified', true);
 
-            // 3. Active Users (Proxy via reputation table)
+            // Active Users (Proxy via reputation table)
             const { count: activeUsers } = await supabase
                 .from('user_reputation')
                 .select('*', { count: 'exact', head: true });
 
-            // 4. Recent Reports
+            // Recent Reports
             const { data: recentReports } = await supabase
                 .from('scam_reports')
                 .select('id, reported_address, scam_type, created_at, verified')

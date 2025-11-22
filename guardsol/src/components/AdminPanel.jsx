@@ -1,4 +1,3 @@
-// src/components/AdminPanel.jsx
 import React, { useState, useEffect } from 'react';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { isAdmin, isDemoMode, getAllReports, getPendingReports, getVerifiedReports } from '../utils/admin';

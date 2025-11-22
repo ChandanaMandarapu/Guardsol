@@ -4,7 +4,7 @@ import { getApprovalsWithRisk, groupApprovalsByRisk } from '../utils/approvals';
 import { getRiskColor, getRiskEmoji } from '../utils/approvalRisk';
 import { revokeApproval, batchRevokeApprovals, estimateRevokeFee } from '../utils/revoke';
 
-// FIXED: Now accepts walletAddress and tokens as props
+// Now accepts walletAddress and tokens as props
 export default function ApprovalScanner({ walletAddress, tokens, tokensLoading }) {
   const { wallet, connected } = useWallet();
   

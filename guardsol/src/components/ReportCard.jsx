@@ -1,4 +1,3 @@
-// src/components/ReportCard.jsx
 import React, { useState } from 'react';
 import VotingButton from './VotingButton';
 import { approveReport, rejectReport, getReporterStats } from '../utils/admin';

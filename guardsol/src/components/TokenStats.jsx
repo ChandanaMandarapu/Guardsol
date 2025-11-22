@@ -1,6 +1,6 @@
 import React from 'react';
 import { hasApproval } from '../utils/tokens';
-
+// collecting tokenstats 
 export default function TokenStats({ tokens }) {
   if (!tokens || tokens.length === 0) return null;
   

@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { checkIfScam, getAllScams } from '../utils/supabase';
-
 // Test component to verify scam detection works
 export default function ScamTester() {
   const [testAddress, setTestAddress] = useState('');

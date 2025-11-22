@@ -1,5 +1,4 @@
-// src/components/ReportScamModal.jsx
-// COMPLETE FIX: Works for both connected wallet AND public viewing
+// Works for both connected wallet AND public viewing
 import React, { useState } from 'react';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { submitScamReport, signMessageWithWallet } from '../utils/community-api';
@@ -9,7 +8,7 @@ export default function ReportScamModal({
   onClose,
   scamAddress,
   tokenName,
-  viewingAddress // NEW: Pass the address being viewed (connected OR public)
+  viewingAddress // Pass the address being viewed (connected OR public)
 }) {
   const { wallet, publicKey, connected } = useWallet();
 

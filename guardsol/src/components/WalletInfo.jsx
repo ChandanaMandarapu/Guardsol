@@ -3,7 +3,7 @@ import { useWallet, useConnection } from '@solana/wallet-adapter-react';
 import { PublicKey } from '@solana/web3.js';
 import { getSolBalance, getWalletAge, calculateWalletReputation } from '../utils/solana';
 
-// FIXED: Now receives activeAddress and setActiveAddress as props
+// Now receives activeAddress and setActiveAddress as props
 export default function WalletInfo({ activeAddress, setActiveAddress }) {
   const { publicKey, connected } = useWallet();
   const { connection } = useConnection();

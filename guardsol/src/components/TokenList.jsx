@@ -1,5 +1,4 @@
-// src/components/TokenList.jsx
-// FIXED: Passes viewingAddress to ReportScamModal
+// passes viewingAddress to ReportScamModal
 import React, { useState, useMemo } from 'react';
 import { useWallet } from '@solana/wallet-adapter-react';
 import ReportScamModal from './ReportScamModal';

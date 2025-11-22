@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from 'react';
-
 // CIRCULAR PROGRESS COMPONENT
 // Shows score as animated circle (like Apple Health)
-
 export default function CircularProgress({ score, size = 200, strokeWidth = 20 }) {
   const [animatedScore, setAnimatedScore] = useState(0);
   

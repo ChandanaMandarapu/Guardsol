@@ -1,5 +1,4 @@
-// src/components/Header.jsx
-// FIXED: Admin Panel always visible, not just for connected admin wallet
+//Admin Panel always visible, not just for connected admin wallet
 import React from 'react';
 import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
 import { useWallet } from '@solana/wallet-adapter-react';
