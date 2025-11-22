@@ -1,20 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import { useWallet, useConnection } from '@solana/wallet-adapter-react';
 import { PublicKey } from '@solana/web3.js';
-import { getSolBalance, getWalletAge, calculateWalletReputation } from '../utils/solana';
+import { getSolBalance, getWalletAge } from '../utils/solana';
+import { getUserReputation, getReputationBadge } from '../utils/reputation';
 
 // Now receives activeAddress and setActiveAddress as props
-export default function WalletInfo({ activeAddress, setActiveAddress }) {
+export default function WalletInfo({ activeAddress, setActiveAddress, onShowGuide }) {
   const { publicKey, connected } = useWallet();
   const { connection } = useConnection();
-  
+
   // Manual address input
   const [manualAddress, setManualAddress] = useState('');
   const [isManualMode, setIsManualMode] = useState(false);
-  
+
   const [balance, setBalance] = useState(null);
   const [walletAge, setWalletAge] = useState(null);
-  const [reputation, setReputation] = useState(null);
+  const [reputationScore, setReputationScore] = useState(0);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
@@ -25,7 +26,7 @@ export default function WalletInfo({ activeAddress, setActiveAddress }) {
     } else {
       setBalance(null);
       setWalletAge(null);
-      setReputation(null);
+      setReputationScore(0);
     }
   }, [activeAddress]);
 
@@ -33,19 +34,19 @@ export default function WalletInfo({ activeAddress, setActiveAddress }) {
     setLoading(true);
     setError(null);
     console.log('🚀 Starting wallet data fetch for:', address);
-    
+
     try {
       const bal = await getSolBalance(address);
       setBalance(bal);
-      
+
       const age = await getWalletAge(address);
       setWalletAge(age);
-      
-      const rep = calculateWalletReputation(age);
-      setReputation(rep);
-      
+
+      const rep = await getUserReputation(address);
+      setReputationScore(rep);
+
       console.log('✅ All wallet data fetched!');
-      
+
     } catch (error) {
       console.error('❌ Error fetching wallet data:', error);
       setError('Failed to fetch wallet data. Check if address is valid.');
@@ -64,10 +65,10 @@ export default function WalletInfo({ activeAddress, setActiveAddress }) {
     try {
       // Validate address
       new PublicKey(manualAddress.trim());
-      
+
       setIsManualMode(true);
       setActiveAddress(manualAddress.trim());
-      
+
     } catch (err) {
       alert('Invalid wallet address! Please check and try again.');
     }
@@ -80,7 +81,7 @@ export default function WalletInfo({ activeAddress, setActiveAddress }) {
     setActiveAddress(connected && publicKey ? publicKey.toString() : null);
     setBalance(null);
     setWalletAge(null);
-    setReputation(null);
+    setReputationScore(0);
     setError(null);
   }
 
@@ -89,7 +90,7 @@ export default function WalletInfo({ activeAddress, setActiveAddress }) {
     return (
       <div className="max-w-7xl mx-auto px-4 py-12">
         <div className="bg-white rounded-lg shadow-md p-8">
-          
+
           {/* Connect Wallet */}
           <div className="text-center mb-8">
             <div className="text-6xl mb-4">🔗</div>
@@ -119,7 +120,7 @@ export default function WalletInfo({ activeAddress, setActiveAddress }) {
             <p className="text-sm text-gray-600 mb-4">
               Enter any Solana wallet address to view its security status (no connection needed!)
             </p>
-            
+
             <div className="flex gap-3">
               <input
                 type="text"
@@ -198,7 +199,7 @@ export default function WalletInfo({ activeAddress, setActiveAddress }) {
   return (
     <div className="max-w-7xl mx-auto px-4 py-12">
       <div className="bg-white rounded-lg shadow-md p-8">
-        
+
         {/* Manual Mode Banner */}
         {isManualMode && (
           <div className="bg-blue-50 border-2 border-blue-200 rounded-lg p-4 mb-6">
@@ -232,7 +233,7 @@ export default function WalletInfo({ activeAddress, setActiveAddress }) {
 
         {/* Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          
+
           {/* Balance */}
           <div className="bg-gray-50 rounded-lg p-6">
             <div className="flex items-center gap-2 mb-2">
@@ -261,22 +262,35 @@ export default function WalletInfo({ activeAddress, setActiveAddress }) {
             <p className="text-sm text-gray-500 mt-1">days old</p>
           </div>
 
-          {/* Reputation */}
+          {/* Reputation Badge */}
           <div className="bg-gray-50 rounded-lg p-6">
             <div className="flex items-center gap-2 mb-2">
               <span className="text-2xl">⭐</span>
               <h4 className="text-sm font-medium text-gray-500">
-                Reputation
+                Community Rank
               </h4>
             </div>
-            <p className="text-3xl font-bold text-gray-900">
-              {reputation !== null ? (reputation * 100).toFixed(0) : '---'}%
-            </p>
-            <p className="text-sm text-gray-500 mt-1">
-              {reputation >= 1 ? 'Veteran' : 
-               reputation >= 0.6 ? 'Trusted' :
-               reputation >= 0.3 ? 'Growing' : 'New'}
-            </p>
+
+            {(() => {
+              const badge = getReputationBadge(reputationScore);
+              return (
+                <div
+                  onClick={onShowGuide}
+                  className="cursor-pointer hover:opacity-80 transition-opacity"
+                >
+                  <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full ${badge.color} text-white font-bold mb-2`}>
+                    <span>{badge.icon}</span>
+                    <span>{badge.label}</span>
+                  </div>
+                  <p className="text-sm text-gray-500">
+                    Score: <span className="font-bold text-gray-900">{reputationScore}</span>
+                  </p>
+                  <p className="text-xs text-blue-500 mt-1 hover:underline">
+                    What is this?
+                  </p>
+                </div>
+              );
+            })()}
           </div>
         </div>
       </div>

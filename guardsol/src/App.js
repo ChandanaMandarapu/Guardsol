@@ -9,6 +9,7 @@ import ApprovalScanner from './components/ApprovalScanner';
 import TokenList from './components/TokenList';
 import AdminPanel from './components/AdminPanel';
 import NetworkStats from './components/NetworkStats';
+import ReputationGuide from './components/ReputationGuide';
 import { validateConfig } from './utils/config';
 
 function AppContent() {
@@ -17,6 +18,7 @@ function AppContent() {
   const [tokens, setTokens] = useState([]);
   const [tokensLoading, setTokensLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState('home'); // 'home' or 'admin'
+  const [showReputationGuide, setShowReputationGuide] = useState(false);
   const { publicKey, connected } = useWallet();
 
   // Update activeAddress when wallet connects/disconnects
@@ -46,7 +48,15 @@ function AppContent() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Header currentPage={currentPage} setCurrentPage={setCurrentPage} />
+      <Header
+        currentPage={currentPage}
+        setCurrentPage={setCurrentPage}
+        onShowGuide={() => setShowReputationGuide(true)}
+      />
+
+      {showReputationGuide && (
+        <ReputationGuide onClose={() => setShowReputationGuide(false)} />
+      )}
 
       {currentPage === 'admin' ? (
         // Admin Panel
@@ -60,6 +70,7 @@ function AppContent() {
           <WalletInfo
             activeAddress={activeAddress}
             setActiveAddress={setActiveAddress}
+            onShowGuide={() => setShowReputationGuide(true)}
           />
 
           {/* Network Stats Dashboard (Day 11) */}

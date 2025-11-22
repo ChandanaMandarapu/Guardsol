@@ -1,15 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import CircularProgress from './CircularProgress';
-import { fetchRiskScoreData } from '../utils/riskScoreData';
+import { fetchRiskScoreData, getRiskScoreHistory } from '../utils/riskScoreData';
 import { getImprovementSuggestions, calculatePotentialScore } from '../utils/riskScore';
-import ReportScamModal from './ReportScamModal'; // Import the modal
+import ReportScamModal from './ReportScamModal';
+import ExportButton from './ExportButton';
+import ShareButton from './ShareButton';
+import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 
-// Now accepts walletAddress as prop
 export default function RiskScoreDisplay({ walletAddress }) {
   const [riskData, setRiskData] = useState(null);
+  const [historyData, setHistoryData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [showReportModal, setShowReportModal] = useState(false); // State for modal
+  const [showReportModal, setShowReportModal] = useState(false);
 
   useEffect(() => {
     if (walletAddress) {
@@ -27,6 +30,16 @@ export default function RiskScoreDisplay({ walletAddress }) {
     try {
       const data = await fetchRiskScoreData(walletAddress);
       setRiskData(data);
+
+      // Fetch history
+      const history = await getRiskScoreHistory(walletAddress);
+      // Format for chart
+      const formattedHistory = history.map(h => ({
+        date: new Date(h.calculated_at).toLocaleDateString(),
+        score: h.score
+      }));
+      setHistoryData(formattedHistory);
+
     } catch (err) {
       console.error('Error fetching risk score:', err);
       setError('Failed to calculate risk score');
@@ -71,6 +84,31 @@ export default function RiskScoreDisplay({ walletAddress }) {
   const suggestions = getImprovementSuggestions(riskData);
   const potentialScore = calculatePotentialScore(riskData.score, suggestions);
 
+  // Calculate Milestones
+  const milestones = [
+    {
+      id: 'safe_harbor',
+      label: 'Safe Harbor',
+      description: 'Risk Score > 80',
+      icon: '🛡️',
+      achieved: riskData.score >= 80
+    },
+    {
+      id: 'first_step',
+      label: 'First Step',
+      description: 'First Scan Completed',
+      icon: '🏁',
+      achieved: true // If they are seeing this, they scanned
+    },
+    {
+      id: 'clean_slate',
+      label: 'Clean Slate',
+      description: '0 Critical Risks',
+      icon: '✨',
+      achieved: riskData.breakdown.deductions.filter(d => d.severity === 'critical').length === 0
+    }
+  ];
+
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
       <div className="bg-gradient-to-r from-primary to-purple-600 rounded-lg shadow-lg p-8 text-white">
@@ -80,14 +118,18 @@ export default function RiskScoreDisplay({ walletAddress }) {
             {riskData.levelEmoji} Wallet Security Score
           </h2>
 
-          {/* Report Wallet Button */}
-          <button
-            onClick={() => setShowReportModal(true)}
-            className="px-4 py-2 bg-red-500 bg-opacity-20 hover:bg-opacity-30 border border-red-400 text-white font-semibold rounded-lg flex items-center gap-2 transition-colors"
-          >
-            <span>🚨</span>
-            <span>Report Wallet</span>
-          </button>
+          {/* Actions */}
+          <div className="flex gap-3">
+            <ShareButton score={riskData.score} />
+            <ExportButton />
+            <button
+              onClick={() => setShowReportModal(true)}
+              className="px-4 py-2 bg-red-500 bg-opacity-20 hover:bg-opacity-30 border border-red-400 text-white font-semibold rounded-lg flex items-center gap-2 transition-colors"
+            >
+              <span>🚨</span>
+              <span className="hidden sm:inline">Report Wallet</span>
+            </button>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -201,6 +243,60 @@ export default function RiskScoreDisplay({ walletAddress }) {
             </div>
           </div>
         )}
+
+        {/* Risk History Chart */}
+        {historyData.length > 1 && (
+          <div className="mt-8 bg-white bg-opacity-90 rounded-lg p-6 text-gray-800">
+            <h3 className="font-bold text-xl mb-4 text-gray-900">📈 Security Score History</h3>
+            <div className="h-64 w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={historyData}>
+                  <XAxis dataKey="date" stroke="#666" fontSize={12} />
+                  <YAxis domain={[0, 100]} stroke="#666" fontSize={12} />
+                  <Tooltip
+                    contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}
+                  />
+                  <Line
+                    type="monotone"
+                    dataKey="score"
+                    stroke="#4F46E5"
+                    strokeWidth={3}
+                    dot={{ fill: '#4F46E5', r: 4 }}
+                    activeDot={{ r: 6 }}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+        )}
+
+        {/* Milestones Section */}
+        <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4">
+          {milestones.map(milestone => (
+            <div
+              key={milestone.id}
+              className={`p-4 rounded-lg border ${milestone.achieved
+                  ? 'bg-green-50 border-green-200'
+                  : 'bg-gray-50 border-gray-200 opacity-60'
+                }`}
+            >
+              <div className="flex items-center gap-3">
+                <div className={`text-2xl ${milestone.achieved ? '' : 'grayscale'}`}>
+                  {milestone.icon}
+                </div>
+                <div>
+                  <h4 className={`font-bold ${milestone.achieved ? 'text-green-800' : 'text-gray-600'}`}>
+                    {milestone.label}
+                  </h4>
+                  <p className="text-xs text-gray-500">{milestone.description}</p>
+                </div>
+                {milestone.achieved && (
+                  <div className="ml-auto text-green-600">✓</div>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
 
       </div>
 
