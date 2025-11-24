@@ -11,6 +11,7 @@ import AdminPanel from './components/AdminPanel';
 import NetworkStats from './components/NetworkStats';
 import ReputationGuide from './components/ReputationGuide';
 import { validateConfig } from './utils/config';
+import { initGA, trackPageView, trackWalletConnected, trackWalletDisconnected } from './utils/analytics';
 
 function AppContent() {
   //Lift activeAddress state to App level
@@ -19,17 +20,30 @@ function AppContent() {
   const [tokensLoading, setTokensLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState('home'); // 'home' or 'admin'
   const [showReputationGuide, setShowReputationGuide] = useState(false);
-  const { publicKey, connected } = useWallet();
+  const { publicKey, connected, wallet } = useWallet();
+
+  // Initialize analytics on mount
+  useEffect(() => {
+    initGA();
+    trackPageView(window.location.pathname);
+  }, []);
+
+  // Track page changes
+  useEffect(() => {
+    trackPageView(`/${currentPage}`);
+  }, [currentPage]);
 
   // Update activeAddress when wallet connects/disconnects
   useEffect(() => {
     if (connected && publicKey) {
       setActiveAddress(publicKey.toString());
+      trackWalletConnected(wallet?.adapter?.name || 'Unknown');
     } else if (!connected) {
       // Don't clear if we're in manual mode
       // This will be handled by WalletInfo's clearManualMode
+      trackWalletDisconnected();
     }
-  }, [connected, publicKey]);
+  }, [connected, publicKey, wallet]);
 
   // Fetch tokens whenever activeAddress changes
   useEffect(() => {
@@ -96,11 +110,39 @@ function AppContent() {
 
       <footer className="bg-white border-t border-gray-200 mt-12">
         <div className="max-w-7xl mx-auto px-4 py-6">
-          <p className="text-center text-sm text-gray-500">
-            🛡️ Guard Sol - Your Solana Security Shield
-          </p>
-          <p className="text-center text-xs text-gray-400 mt-1">
-            Not financial advice. Use at your own risk.
+          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+            <p className="text-sm text-gray-500">
+              🛡️ GuardSol - Your Solana Security Shield
+            </p>
+            <div className="flex gap-6">
+              <a
+                href="/terms.html"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-sm text-gray-600 hover:text-primary"
+              >
+                Terms
+              </a>
+              <a
+                href="/privacy.html"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-sm text-gray-600 hover:text-primary"
+              >
+                Privacy
+              </a>
+              <a
+                href="https://github.com/yourusername/guardsol"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-sm text-gray-600 hover:text-primary"
+              >
+                GitHub
+              </a>
+            </div>
+          </div>
+          <p className="text-center text-xs text-gray-400 mt-2">
+            Not financial advice. Use at your own risk. Always verify independently.
           </p>
         </div>
       </footer>

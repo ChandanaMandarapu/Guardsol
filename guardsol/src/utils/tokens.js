@@ -2,6 +2,7 @@ import { PublicKey } from '@solana/web3.js';
 import { connection } from './solana';
 import { config } from './config';
 import { getCachedData, setCachedData } from './cache';
+import { rpcCache } from './rpcCache';
 
 const TOKEN_PROGRAM_ID = new PublicKey(config.tokenProgramId);
 
@@ -9,31 +10,42 @@ const TOKEN_PROGRAM_ID = new PublicKey(config.tokenProgramId);
 export async function fetchAllTokens(walletAddress) {
   try {
     console.log('🎯 Starting token fetch for:', walletAddress);
-    
-    // Check cache first
+
+    // Check localStorage cache first (24 hour cache)
     const cached = getCachedData('tokens', walletAddress);
     if (cached) {
-      console.log('✅ Returning', cached.length, 'tokens from cache');
+      console.log('✅ Returning', cached.length, 'tokens from localStorage cache');
       return cached;
     }
-    
+
     console.log('📡 Fetching from blockchain...');
-    
+
     const publicKey = new PublicKey(walletAddress);
-    
-    // THE MAGIC FUNCTION - gets all token accounts
-    const response = await connection.getParsedTokenAccountsByOwner(
-      publicKey,
-      { programId: TOKEN_PROGRAM_ID },
-      'confirmed'
-    );
-    
+
+    // Check RPC cache (30 min cache)
+    const rpcCached = rpcCache.get('getParsedTokenAccountsByOwner', walletAddress);
+    let response;
+
+    if (rpcCached) {
+      response = rpcCached;
+    } else {
+      // THE MAGIC FUNCTION - gets all token accounts
+      response = await connection.getParsedTokenAccountsByOwner(
+        publicKey,
+        { programId: TOKEN_PROGRAM_ID },
+        'confirmed'
+      );
+
+      // Cache in RPC cache (30 min)
+      rpcCache.set('getParsedTokenAccountsByOwner', walletAddress, response);
+    }
+
     console.log('✅ Found', response.value.length, 'token accounts');
-    
+
     // Parse tokens
     const tokens = response.value.map((item, index) => {
       const accountData = item.account.data.parsed.info;
-      
+
       return {
         id: `${accountData.mint}_${index}`,
         accountAddress: item.pubkey.toString(),
@@ -47,21 +59,21 @@ export async function fetchAllTokens(walletAddress) {
         metadata: null
       };
     });
-    
+
     // Fetch metadata
     console.log('🎨 Fetching metadata...');
     const enrichedTokens = await enrichTokensWithMetadata(tokens);
-    
+
     // Calculate scam scores
     console.log('🚨 Calculating scam scores...');
     const tokensWithScores = await calculateAllScamScores(enrichedTokens);
-    
+
     // Cache results
     setCachedData('tokens', walletAddress, tokensWithScores);
-    
+
     console.log('✅ Complete! Cached', tokensWithScores.length, 'tokens');
     return tokensWithScores;
-    
+
   } catch (error) {
     console.error('❌ Error fetching tokens:', error);
     throw error;
@@ -72,11 +84,11 @@ export async function fetchAllTokens(walletAddress) {
 export async function fetchTokenMetadata(mintAddresses) {
   try {
     console.log('📡 Fetching metadata for', mintAddresses.length, 'tokens...');
-    
+
     // Check cache
     const cachedMetadata = {};
     const uncachedMints = [];
-    
+
     mintAddresses.forEach(mint => {
       const cached = getCachedData('metadata', mint);
       if (cached) {
@@ -85,16 +97,16 @@ export async function fetchTokenMetadata(mintAddresses) {
         uncachedMints.push(mint);
       }
     });
-    
+
     console.log('💾', Object.keys(cachedMetadata).length, 'cached,', uncachedMints.length, 'new');
-    
+
     if (uncachedMints.length === 0) {
       return cachedMetadata;
     }
-    
+
     // Helius DAS API
     const url = `https://mainnet.helius-rpc.com/?api-key=${config.heliusKey}`;
-    
+
     const response = await fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -105,18 +117,18 @@ export async function fetchTokenMetadata(mintAddresses) {
         params: { ids: uncachedMints }
       })
     });
-    
+
     if (!response.ok) {
       throw new Error(`Helius API error: ${response.status}`);
     }
-    
+
     const data = await response.json();
     const newMetadata = {};
-    
+
     if (data.result) {
       data.result.forEach(asset => {
         if (!asset) return;
-        
+
         const mint = asset.id;
         const metadata = {
           mint,
@@ -127,16 +139,16 @@ export async function fetchTokenMetadata(mintAddresses) {
           freezeAuthority: asset.freeze_authority || null,
           holderCount: asset.supply?.print_current_supply || 0,
         };
-        
+
         newMetadata[mint] = metadata;
         setCachedData('metadata', mint, metadata);
       });
     }
-    
+
     console.log('✅ Fetched', Object.keys(newMetadata).length, 'new metadata');
-    
+
     return { ...cachedMetadata, ...newMetadata };
-    
+
   } catch (error) {
     console.error('❌ Error fetching metadata:', error);
     return {};
@@ -147,7 +159,7 @@ export async function fetchTokenMetadata(mintAddresses) {
 export async function enrichTokensWithMetadata(tokens) {
   const mintAddresses = [...new Set(tokens.map(t => t.mint))];
   const metadataMap = await fetchTokenMetadata(mintAddresses);
-  
+
   return tokens.map(token => ({
     ...token,
     metadata: metadataMap[token.mint] || null
@@ -158,7 +170,7 @@ export async function enrichTokensWithMetadata(tokens) {
 async function calculateAllScamScores(tokens) {
   // Import here to avoid circular dependency
   const { calculateScamScore } = await import('./scamDetection');
-  
+
   const tokensWithScores = await Promise.all(
     tokens.map(async (token) => {
       const scamResult = await calculateScamScore(token);
@@ -170,7 +182,7 @@ async function calculateAllScamScores(tokens) {
       };
     })
   );
-  
+
   return tokensWithScores;
 }
 
@@ -182,17 +194,17 @@ export function hasApproval(token) {
 // Helper: Format balance
 export function formatTokenBalance(token) {
   if (!token || token.balance === 0) return '0';
-  
+
   if (token.balance < 0.0001) {
     return token.balance.toExponential(2);
   }
-  
+
   if (token.balance >= 1000000) {
     return (token.balance / 1000000).toFixed(2) + 'M';
   }
   if (token.balance >= 1000) {
     return (token.balance / 1000).toFixed(2) + 'K';
   }
-  
+
   return token.balance.toFixed(4);
 }
