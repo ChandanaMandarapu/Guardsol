@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { getCommunityReports } from '../utils/community-api';
+import VotingButton from './VotingButton';
 
 export default function CommunityReports({ address }) {
   const [reports, setReports] = useState(null);
@@ -66,13 +67,12 @@ export default function CommunityReports({ address }) {
           </div>
           <div className="w-full bg-gray-200 rounded-full h-2">
             <div
-              className={`h-2 rounded-full transition-all ${
-                reports.confidence >= 70
-                  ? 'bg-red-600'
-                  : reports.confidence >= 50
+              className={`h-2 rounded-full transition-all ${reports.confidence >= 70
+                ? 'bg-red-600'
+                : reports.confidence >= 50
                   ? 'bg-orange-500'
                   : 'bg-yellow-500'
-              }`}
+                }`}
               style={{ width: `${reports.confidence}%` }}
             />
           </div>
@@ -88,13 +88,18 @@ export default function CommunityReports({ address }) {
           <div className="mt-2 space-y-2">
             {reports.reports.slice(0, 3).map((report, idx) => (
               <div key={idx} className="bg-white bg-opacity-50 rounded p-2">
-                <p className="text-xs">
-                  <span className="font-semibold">{report.reason}</span>
-                  {report.verified && <span className="ml-1 text-green-600">✅</span>}
-                </p>
-                <p className="text-xs text-gray-500 mt-1">
-                  {new Date(report.reportedAt).toLocaleDateString()}
-                </p>
+                <div className="flex justify-between items-start">
+                  <div>
+                    <p className="text-xs">
+                      <span className="font-semibold">{report.reason}</span>
+                      {report.verified && <span className="ml-1 text-green-600">✅</span>}
+                    </p>
+                    <p className="text-xs text-gray-500 mt-1">
+                      {new Date(report.reportedAt).toLocaleDateString()}
+                    </p>
+                  </div>
+                  <VotingButton reportId={report.id} />
+                </div>
               </div>
             ))}
           </div>

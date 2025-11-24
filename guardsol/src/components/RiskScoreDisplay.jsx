@@ -5,6 +5,7 @@ import { getImprovementSuggestions, calculatePotentialScore } from '../utils/ris
 import ReportScamModal from './ReportScamModal';
 import ExportButton from './ExportButton';
 import ShareButton from './ShareButton';
+import CommunityReports from './CommunityReports';
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 
 export default function RiskScoreDisplay({ walletAddress }) {
@@ -131,6 +132,9 @@ export default function RiskScoreDisplay({ walletAddress }) {
             </button>
           </div>
         </div>
+
+        {/* Community Reports Section */}
+        <CommunityReports address={walletAddress} />
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
 

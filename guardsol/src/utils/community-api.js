@@ -1,4 +1,3 @@
-
 import { supabase } from './supabaseClient';
 import bs58 from 'bs58';
 
@@ -89,56 +88,46 @@ export async function submitScamReport(reportData) {
  */
 export async function getCommunityReports(address) {
   try {
-    const { data: reports, error } = await supabase
+    const { data, error } = await supabase
       .from('scam_reports')
       .select('*')
-      .eq('reported_address', address);
+      .eq('reported_address', address)
+      .order('created_at', { ascending: false });
 
     if (error) throw error;
 
-    if (!reports || reports.length === 0) {
-      return {
-        isScam: false,
-        reportCount: 0,
-        confidence: 0
-      };
-    }
-
-    const totalReports = reports.length;
-    const verifiedReports = reports.filter(r => r.verified).length;
+    const reports = data || [];
+    const verifiedCount = reports.filter(r => r.verified).length;
 
     // Calculate confidence
     let confidence = 0;
-    if (verifiedReports > 0) confidence += 50;
-    if (totalReports >= 10) confidence += 30;
-    else if (totalReports >= 5) confidence += 15;
-    else if (totalReports >= 3) confidence += 10;
+    if (verifiedCount > 0) confidence = 90;
+    else if (reports.length >= 10) confidence = 70;
+    else if (reports.length >= 5) confidence = 50;
+    else if (reports.length > 0) confidence = 30;
 
     return {
-      isScam: confidence >= 50,
-      reportCount: totalReports,
-      verifiedCount: verifiedReports,
-      confidence: Math.min(100, confidence),
+      reportCount: reports.length,
+      verifiedCount,
+      confidence,
       reports: reports.map(r => ({
+        id: r.id,
         reason: r.reason,
-        reportedAt: r.created_at,
-        verified: r.verified
+        verified: r.verified,
+        reportedAt: r.created_at
       }))
     };
-
   } catch (error) {
-    console.error('❌ Get reports error:', error);
+    console.error('Error fetching community reports:', error);
     return {
-      isScam: false,
       reportCount: 0,
-      confidence: 0
+      verifiedCount: 0,
+      confidence: 0,
+      reports: []
     };
   }
 }
 
-/**
- * Update user reputation after report
- */
 async function updateUserReputation(walletAddress) {
   try {
     const { data: existing } = await supabase
@@ -193,4 +182,3 @@ export async function signMessageWithWallet(message, wallet) {
 
   return signatureBase58;
 }
-// the amount of i changed this codeeee hoooooooooooooooooooooooooooooooooooo - venmathiye nov21252331

@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
+import { useWallet } from '@solana/wallet-adapter-react';
 
 export default function DisputeModal({ isOpen, onClose, reportId, reportedAddress }) {
+    const { publicKey } = useWallet();
     const [reason, setReason] = useState('False Positive');
     const [details, setDetails] = useState('');
     const [evidence, setEvidence] = useState('');
@@ -17,7 +19,7 @@ export default function DisputeModal({ isOpen, onClose, reportId, reportedAddres
 
         try {
             // In a real app, we'd get the connected wallet address here
-            const disputerAddress = "UserWallet"; // Placeholder, ideally useWallet()
+            const disputerAddress = publicKey ? publicKey.toString() : null;
 
             const response = await fetch('/api/submit-dispute', {
                 method: 'POST',
