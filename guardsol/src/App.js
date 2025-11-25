@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useWallet } from '@solana/wallet-adapter-react';
 import WalletContextProvider from './components/WalletProvider';
+import MainLayout from './components/Layout/MainLayout';
 import Header from './components/Header';
 import WalletInfo from './components/WalletInfo';
 import RiskScoreDisplay from './components/RiskScoreDisplay';
@@ -61,7 +62,7 @@ function AppContent() {
   }, [activeAddress]);
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <MainLayout>
       <Header
         currentPage={currentPage}
         setCurrentPage={setCurrentPage}
@@ -107,46 +108,7 @@ function AppContent() {
           <TokenList tokens={tokens} loading={tokensLoading} />
         </main>
       )}
-
-      <footer className="bg-white border-t border-gray-200 mt-12">
-        <div className="max-w-7xl mx-auto px-4 py-6">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-            <p className="text-sm text-gray-500">
-              🛡️ GuardSol - Your Solana Security Shield
-            </p>
-            <div className="flex gap-6">
-              <a
-                href="/terms.html"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-sm text-gray-600 hover:text-primary"
-              >
-                Terms
-              </a>
-              <a
-                href="/privacy.html"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-sm text-gray-600 hover:text-primary"
-              >
-                Privacy
-              </a>
-              <a
-                href="https://github.com/yourusername/guardsol"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-sm text-gray-600 hover:text-primary"
-              >
-                GitHub
-              </a>
-            </div>
-          </div>
-          <p className="text-center text-xs text-gray-400 mt-2">
-            Not financial advice. Use at your own risk. Always verify independently.
-          </p>
-        </div>
-      </footer>
-    </div>
+    </MainLayout>
   );
 }
 
