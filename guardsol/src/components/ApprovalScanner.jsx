@@ -3,11 +3,13 @@ import { useWallet } from '@solana/wallet-adapter-react';
 import { getApprovalsWithRisk, groupApprovalsByRisk } from '../utils/approvals';
 import { getRiskColor, getRiskEmoji } from '../utils/approvalRisk';
 import { revokeApproval, batchRevokeApprovals, estimateRevokeFee } from '../utils/revoke';
+import GlassCard from './UI/GlassCard';
+import NeonButton from './UI/NeonButton';
 
 // Now accepts walletAddress and tokens as props
 export default function ApprovalScanner({ walletAddress, tokens, tokensLoading }) {
   const { wallet, connected } = useWallet();
-  
+
   const [approvals, setApprovals] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -28,12 +30,12 @@ export default function ApprovalScanner({ walletAddress, tokens, tokensLoading }
     setLoading(true);
     setError(null);
     console.log('🔍 Scanning approvals for:', walletAddress);
-    
+
     try {
       const approvalsWithRisk = await getApprovalsWithRisk(tokens);
       setApprovals(approvalsWithRisk);
       console.log('✅ Found', approvalsWithRisk.length, 'approvals');
-      
+
     } catch (err) {
       console.error('❌ Error:', err);
       setError('Failed to scan approvals');
@@ -53,30 +55,30 @@ export default function ApprovalScanner({ walletAddress, tokens, tokensLoading }
       alert('Please select approvals to revoke');
       return;
     }
-    
+
     const fee = await estimateRevokeFee();
     const totalFee = fee * selectedApprovals.length;
-    
+
     const confirmed = window.confirm(
       `Revoke ${selectedApprovals.length} approvals?\n\n` +
       `Estimated fee: ${totalFee.toFixed(6)} SOL\n\n` +
       `This will remove all selected delegates.`
     );
-    
+
     if (!confirmed) return;
-    
+
     setBatchRevoking(true);
-    
+
     try {
       const result = await batchRevokeApprovals(selectedApprovals, wallet);
-      
+
       if (result.success) {
         alert(`Success! Revoked ${result.count} approvals.\n\nTx: ${result.signature}`);
         setTimeout(() => window.location.reload(), 2000);
       } else {
         alert(`Failed: ${result.error}`);
       }
-      
+
     } catch (error) {
       alert(`Error: ${error.message}`);
     } finally {
@@ -112,12 +114,10 @@ export default function ApprovalScanner({ walletAddress, tokens, tokensLoading }
   if (loading || tokensLoading) {
     return (
       <div className="max-w-7xl mx-auto px-4 py-8">
-        <div className="bg-white rounded-lg shadow-md p-8">
-          <div className="flex items-center justify-center gap-3">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-            <p className="text-lg text-gray-600">Scanning approvals...</p>
-          </div>
-        </div>
+        <GlassCard className="flex items-center justify-center gap-3 min-h-[200px]">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-neon-blue"></div>
+          <p className="text-lg text-neon-blue animate-pulse">Scanning approvals...</p>
+        </GlassCard>
       </div>
     );
   }
@@ -125,19 +125,18 @@ export default function ApprovalScanner({ walletAddress, tokens, tokensLoading }
   if (error) {
     return (
       <div className="max-w-7xl mx-auto px-4 py-8">
-        <div className="bg-red-50 border border-red-200 rounded-lg p-6">
-          <div className="flex items-center gap-2 mb-2">
+        <GlassCard className="border-neon-red/50 bg-neon-red/5">
+          <div className="flex items-center gap-2 mb-2 justify-center">
             <span className="text-2xl">❌</span>
-            <h3 className="font-bold text-red-900">Error</h3>
+            <h3 className="font-bold text-neon-red">Error</h3>
           </div>
-          <p className="text-red-800">{error}</p>
-          <button
-            onClick={scanApprovals}
-            className="mt-4 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
-          >
-            Try Again
-          </button>
-        </div>
+          <p className="text-neon-red text-center mb-4">{error}</p>
+          <div className="flex justify-center">
+            <NeonButton variant="danger" onClick={scanApprovals}>
+              Try Again
+            </NeonButton>
+          </div>
+        </GlassCard>
       </div>
     );
   }
@@ -145,14 +144,14 @@ export default function ApprovalScanner({ walletAddress, tokens, tokensLoading }
   if (approvals.length === 0) {
     return (
       <div className="max-w-7xl mx-auto px-4 py-8">
-        <div className="bg-green-50 border-2 border-green-200 rounded-lg shadow-md p-8 text-center">
-          <div className="text-6xl mb-4">🎉</div>
-          <h3 className="text-2xl font-bold text-green-900 mb-2">Great News!</h3>
-          <p className="text-green-800 text-lg">No token approvals found</p>
-          <p className="text-green-700 text-sm mt-2">
+        <GlassCard className="bg-neon-green/5 border-neon-green/30 text-center py-12">
+          <div className="text-6xl mb-4 filter drop-shadow-[0_0_10px_rgba(0,255,175,0.5)]">🎉</div>
+          <h3 className="text-2xl font-bold text-neon-green mb-2">Great News!</h3>
+          <p className="text-white text-lg">No token approvals found</p>
+          <p className="text-neon-green/80 text-sm mt-2">
             No delegates can move your tokens. Your wallet is secure!
           </p>
-        </div>
+        </GlassCard>
       </div>
     );
   }
@@ -162,61 +161,66 @@ export default function ApprovalScanner({ walletAddress, tokens, tokensLoading }
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
-      
+
       <div className="mb-6">
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">🔍 Approval Scanner</h2>
-        <p className="text-gray-600">Found {approvals.length} approval{approvals.length !== 1 ? 's' : ''}</p>
+        <h2 className="text-2xl font-bold text-white mb-2 flex items-center gap-2">
+          <span>🔍</span> Approval Scanner
+        </h2>
+        <p className="text-text-secondary">Found <span className="text-neon-blue font-bold">{approvals.length}</span> approval{approvals.length !== 1 ? 's' : ''}</p>
         {!canRevoke && (
-          <p className="text-sm text-orange-600 mt-2">
+          <p className="text-sm text-neon-yellow mt-2 flex items-center gap-2">
             ⚠️ Connect your wallet to revoke approvals
           </p>
         )}
       </div>
 
       {(grouped.critical.length > 0 || grouped.high.length > 0) && (
-        <div className="bg-red-50 border-2 border-red-200 rounded-lg p-6 mb-6">
+        <GlassCard className="border-neon-red/50 bg-neon-red/5 mb-6 animate-pulse-slow">
           <div className="flex items-center gap-2 mb-3">
             <span className="text-3xl">⚠️</span>
-            <h3 className="text-xl font-bold text-red-900">Action Required!</h3>
+            <h3 className="text-xl font-bold text-neon-red">Action Required!</h3>
           </div>
-          <div className="space-y-2 text-red-800">
+          <div className="space-y-2 text-white">
             {grouped.critical.length > 0 && (
-              <p className="font-semibold">
-                🔴 {grouped.critical.length} CRITICAL risk - Revoke immediately!
+              <p className="font-semibold flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-neon-red animate-ping"></span>
+                <span className="text-neon-red">{grouped.critical.length} CRITICAL risk - Revoke immediately!</span>
               </p>
             )}
             {grouped.high.length > 0 && (
-              <p className="font-semibold">
+              <p className="font-semibold text-neon-yellow">
                 🟠 {grouped.high.length} High risk - Review urgently
               </p>
             )}
           </div>
-        </div>
+        </GlassCard>
       )}
 
       {approvals.length > 0 && canRevoke && (
-        <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-          <div className="flex items-center justify-between mb-4">
+        <GlassCard className="mb-6">
+          <div className="flex flex-col md:flex-row items-center justify-between mb-4 gap-4">
             <div>
-              <h3 className="text-lg font-bold text-gray-900">Batch Actions</h3>
-              <p className="text-sm text-gray-600">
+              <h3 className="text-lg font-bold text-white">Batch Actions</h3>
+              <p className="text-sm text-text-secondary">
                 {selectedApprovals.length} selected
               </p>
             </div>
-            
+
             <div className="flex gap-3">
-              <button
+              <NeonButton
+                variant="outline"
                 onClick={() => setSelectedApprovals([])}
                 disabled={selectedApprovals.length === 0}
-                className="px-4 py-2 bg-gray-200 text-gray-700 font-semibold rounded-lg hover:bg-gray-300 disabled:opacity-50"
+                className="!py-2 !px-4"
               >
                 Clear
-              </button>
-              
-              <button
+              </NeonButton>
+
+              <NeonButton
+                variant="danger"
                 onClick={handleBatchRevoke}
                 disabled={selectedApprovals.length === 0 || batchRevoking}
-                className="px-6 py-2 bg-red-600 text-white font-bold rounded-lg hover:bg-red-700 disabled:opacity-50 flex items-center gap-2"
+                className="!py-2 !px-6"
               >
                 {batchRevoking ? (
                   <>
@@ -229,15 +233,15 @@ export default function ApprovalScanner({ walletAddress, tokens, tokensLoading }
                     <span>Revoke Selected ({selectedApprovals.length})</span>
                   </>
                 )}
-              </button>
+              </NeonButton>
             </div>
           </div>
-          
+
           <div className="flex flex-wrap gap-2">
             {grouped.critical.length > 0 && (
               <button
                 onClick={() => selectAllInGroup(grouped.critical)}
-                className="px-3 py-1 bg-red-100 text-red-800 text-sm font-semibold rounded hover:bg-red-200"
+                className="px-3 py-1 bg-neon-red/10 text-neon-red border border-neon-red/30 text-sm font-semibold rounded hover:bg-neon-red/20 transition-colors"
               >
                 Select All Critical ({grouped.critical.length})
               </button>
@@ -245,7 +249,7 @@ export default function ApprovalScanner({ walletAddress, tokens, tokensLoading }
             {grouped.high.length > 0 && (
               <button
                 onClick={() => selectAllInGroup(grouped.high)}
-                className="px-3 py-1 bg-orange-100 text-orange-800 text-sm font-semibold rounded hover:bg-orange-200"
+                className="px-3 py-1 bg-neon-yellow/10 text-neon-yellow border border-neon-yellow/30 text-sm font-semibold rounded hover:bg-neon-yellow/20 transition-colors"
               >
                 Select All High ({grouped.high.length})
               </button>
@@ -255,12 +259,12 @@ export default function ApprovalScanner({ walletAddress, tokens, tokensLoading }
                 const unlimited = approvals.filter(a => a.isUnlimited);
                 setSelectedApprovals(unlimited.map(a => a.tokenAccountAddress));
               }}
-              className="px-3 py-1 bg-purple-100 text-purple-800 text-sm font-semibold rounded hover:bg-purple-200"
+              className="px-3 py-1 bg-neon-purple/10 text-neon-purple border border-neon-purple/30 text-sm font-semibold rounded hover:bg-neon-purple/20 transition-colors"
             >
               Select All Unlimited
             </button>
           </div>
-        </div>
+        </GlassCard>
       )}
 
       <div className="space-y-6">
@@ -272,9 +276,10 @@ export default function ApprovalScanner({ walletAddress, tokens, tokensLoading }
             onToggleSelect={toggleSelection}
             wallet={wallet}
             canRevoke={canRevoke}
+            titleColor="text-neon-red"
           />
         )}
-        
+
         {grouped.high.length > 0 && (
           <ApprovalGroup
             title="🟠 High Risk"
@@ -283,9 +288,10 @@ export default function ApprovalScanner({ walletAddress, tokens, tokensLoading }
             onToggleSelect={toggleSelection}
             wallet={wallet}
             canRevoke={canRevoke}
+            titleColor="text-neon-yellow"
           />
         )}
-        
+
         {grouped.medium.length > 0 && (
           <ApprovalGroup
             title="🟡 Medium Risk"
@@ -294,9 +300,10 @@ export default function ApprovalScanner({ walletAddress, tokens, tokensLoading }
             onToggleSelect={toggleSelection}
             wallet={wallet}
             canRevoke={canRevoke}
+            titleColor="text-neon-yellow"
           />
         )}
-        
+
         {grouped.low.length > 0 && (
           <ApprovalGroup
             title="🔵 Low Risk"
@@ -305,6 +312,7 @@ export default function ApprovalScanner({ walletAddress, tokens, tokensLoading }
             onToggleSelect={toggleSelection}
             wallet={wallet}
             canRevoke={canRevoke}
+            titleColor="text-neon-blue"
           />
         )}
       </div>
@@ -313,10 +321,10 @@ export default function ApprovalScanner({ walletAddress, tokens, tokensLoading }
   );
 }
 
-function ApprovalGroup({ title, approvals, selectedApprovals, onToggleSelect, wallet, canRevoke }) {
+function ApprovalGroup({ title, approvals, selectedApprovals, onToggleSelect, wallet, canRevoke, titleColor = "text-white" }) {
   return (
     <div className="space-y-4">
-      <h3 className="text-lg font-bold text-gray-900">{title}</h3>
+      <h3 className={`text-lg font-bold ${titleColor}`}>{title}</h3>
       <div className="grid grid-cols-1 gap-4">
         {approvals.map((approval) => (
           <ApprovalCard
@@ -338,9 +346,9 @@ function ApprovalCard({ approval, selected, onToggleSelect, wallet, canRevoke })
   const [revoking, setRevoking] = useState(false);
   const [revokeSuccess, setRevokeSuccess] = useState(false);
   const [revokeError, setRevokeError] = useState(null);
-  
+
   const riskColor = getRiskColor(approval.riskLevel);
-  
+
   async function handleRevoke() {
     if (!canRevoke) {
       alert('Please connect your wallet to revoke approvals');
@@ -353,15 +361,15 @@ function ApprovalCard({ approval, selected, onToggleSelect, wallet, canRevoke })
       `Fee: ~${fee} SOL\n\n` +
       `Delegate will NO LONGER be able to transfer your tokens.`
     );
-    
+
     if (!confirmed) return;
-    
+
     setRevoking(true);
     setRevokeError(null);
-    
+
     try {
       const result = await revokeApproval(approval.tokenAccountAddress, wallet);
-      
+
       if (result.success) {
         setRevokeSuccess(true);
         alert(`Success!\n\nTx: ${result.signature}`);
@@ -377,70 +385,79 @@ function ApprovalCard({ approval, selected, onToggleSelect, wallet, canRevoke })
       setRevoking(false);
     }
   }
-  
+
   const borderColors = {
-    red: 'border-red-300',
-    orange: 'border-orange-300',
-    yellow: 'border-yellow-300',
-    blue: 'border-blue-300'
+    red: 'border-neon-red',
+    orange: 'border-neon-yellow',
+    yellow: 'border-neon-yellow',
+    blue: 'border-neon-blue'
   };
-  
+
   const bgColors = {
-    red: 'bg-red-50',
-    orange: 'bg-orange-50',
-    yellow: 'bg-yellow-50',
-    blue: 'bg-blue-50'
+    red: 'bg-neon-red/10',
+    orange: 'bg-neon-yellow/10',
+    yellow: 'bg-neon-yellow/10',
+    blue: 'bg-neon-blue/10'
   };
-  
+
+  const textColors = {
+    red: 'text-neon-red',
+    orange: 'text-neon-yellow',
+    yellow: 'text-neon-yellow',
+    blue: 'text-neon-blue'
+  };
+
   return (
-    <div className={`bg-white border-2 ${borderColors[riskColor]} rounded-lg shadow-md p-6 ${selected ? 'ring-4 ring-primary ring-opacity-50' : ''}`}>
-      
+    <GlassCard
+      className={`border ${borderColors[riskColor]} transition-all duration-300 ${selected ? 'ring-2 ring-neon-blue ring-opacity-50 shadow-[0_0_20px_rgba(0,246,255,0.2)]' : ''}`}
+    >
+
       <div className="flex items-start gap-4">
-        
+
         {canRevoke && (
           <input
             type="checkbox"
             checked={selected}
             onChange={onToggleSelect}
-            className="mt-2 w-5 h-5 text-primary border-gray-300 rounded focus:ring-primary cursor-pointer"
+            className="mt-2 w-5 h-5 accent-neon-blue cursor-pointer"
           />
         )}
-        
+
         <div className="flex-1 min-w-0">
-          
+
           <div className="flex items-start justify-between mb-4">
             <div className="flex items-center gap-3 flex-1">
               {approval.tokenImage ? (
-                <img 
-                  src={approval.tokenImage} 
+                <img
+                  src={approval.tokenImage}
                   alt={approval.tokenName}
-                  className="w-12 h-12 rounded-full object-cover"
+                  className="w-12 h-12 rounded-full object-cover border border-white/10"
                   onError={(e) => {
                     e.target.style.display = 'none';
                     e.target.nextSibling.style.display = 'flex';
                   }}
                 />
               ) : null}
-              <div 
-                className="w-12 h-12 bg-gradient-to-br from-primary to-purple-600 rounded-full flex items-center justify-center text-white text-xl font-bold"
+              <div
+                className="w-12 h-12 bg-gradient-to-br from-neon-blue to-neon-purple rounded-full flex items-center justify-center text-black text-xl font-bold shadow-neon-blue"
                 style={{ display: approval.tokenImage ? 'none' : 'flex' }}
               >
                 {approval.tokenSymbol.charAt(0)}
               </div>
-              
+
               <div className="flex-1 min-w-0">
-                <h4 className="font-semibold text-gray-900 truncate">{approval.tokenName}</h4>
-                <p className="text-sm text-gray-500">{approval.tokenSymbol}</p>
-                <p className="text-xs text-gray-400 mt-1">Balance: {approval.balance.toFixed(4)}</p>
+                <h4 className="font-semibold text-white truncate">{approval.tokenName}</h4>
+                <p className="text-sm text-text-secondary">{approval.tokenSymbol}</p>
+                <p className="text-xs text-text-muted mt-1 font-mono">Balance: {approval.balance.toFixed(4)}</p>
               </div>
             </div>
 
-            <div className={`${bgColors[riskColor]} px-4 py-2 rounded-lg`}>
+            <div className={`${bgColors[riskColor]} px-4 py-2 rounded-lg border border-white/5`}>
               <div className="flex items-center gap-2">
-                <span className="text-2xl">{getRiskEmoji(approval.riskLevel)}</span>
+                <span className="text-2xl filter drop-shadow-[0_0_5px_rgba(255,255,255,0.3)]">{getRiskEmoji(approval.riskLevel)}</span>
                 <div>
-                  <p className="text-xs font-semibold text-gray-600">Risk</p>
-                  <p className="text-xl font-bold text-gray-900">{approval.riskScore}</p>
+                  <p className="text-xs font-semibold text-text-secondary">Risk</p>
+                  <p className={`text-xl font-bold ${textColors[riskColor]}`}>{approval.riskScore}</p>
                 </div>
               </div>
             </div>
@@ -448,20 +465,20 @@ function ApprovalCard({ approval, selected, onToggleSelect, wallet, canRevoke })
 
           <div className="mb-4 flex items-center gap-2">
             {approval.isUnlimited ? (
-              <span className="inline-flex items-center gap-1 px-3 py-1 bg-red-100 text-red-800 text-sm font-bold rounded-full">
+              <span className="inline-flex items-center gap-1 px-3 py-1 bg-neon-red/20 text-neon-red border border-neon-red/30 text-sm font-bold rounded-full animate-pulse">
                 ⚠️ UNLIMITED
               </span>
             ) : (
-              <span className="inline-flex items-center gap-1 px-3 py-1 bg-yellow-100 text-yellow-800 text-sm font-semibold rounded-full">
+              <span className="inline-flex items-center gap-1 px-3 py-1 bg-neon-yellow/20 text-neon-yellow border border-neon-yellow/30 text-sm font-semibold rounded-full">
                 Limited
               </span>
             )}
           </div>
 
-          <div className="bg-gray-50 rounded-lg p-4 mb-4">
-            <p className="text-sm font-semibold text-gray-700 mb-2">Delegate:</p>
+          <div className="bg-dark-bg/50 rounded-lg p-4 mb-4 border border-white/5">
+            <p className="text-sm font-semibold text-text-secondary mb-2">Delegate:</p>
             <div className="flex items-center gap-2">
-              <p className="text-xs font-mono text-gray-600 break-all flex-1">
+              <p className="text-xs font-mono text-text-primary break-all flex-1">
                 {approval.delegate}
               </p>
               <button
@@ -469,30 +486,30 @@ function ApprovalCard({ approval, selected, onToggleSelect, wallet, canRevoke })
                   navigator.clipboard.writeText(approval.delegate);
                   alert('Copied!');
                 }}
-                className="px-2 py-1 bg-gray-200 hover:bg-gray-300 rounded text-xs"
+                className="px-2 py-1 bg-white/5 hover:bg-white/10 rounded text-xs text-text-secondary transition-colors"
               >
                 Copy
               </button>
             </div>
-            
+
             {approval.delegateInfo && (
               <div className="mt-3 grid grid-cols-2 gap-3">
                 <div>
-                  <p className="text-xs text-gray-500">Age</p>
-                  <p className="text-sm font-semibold text-gray-700">
+                  <p className="text-xs text-text-muted">Age</p>
+                  <p className="text-sm font-semibold text-white">
                     {approval.delegateInfo.ageLabel}
                   </p>
                 </div>
                 <div>
-                  <p className="text-xs text-gray-500">Transactions</p>
-                  <p className="text-sm font-semibold text-gray-700">
+                  <p className="text-xs text-text-muted">Transactions</p>
+                  <p className="text-sm font-semibold text-white">
                     {approval.delegateInfo.txCountLabel}
                   </p>
                 </div>
                 {approval.delegateInfo.isScammer && (
                   <div className="col-span-2">
-                    <div className="bg-red-100 border border-red-300 rounded px-2 py-1">
-                      <p className="text-xs font-bold text-red-800">
+                    <div className="bg-neon-red/20 border border-neon-red/50 rounded px-2 py-1">
+                      <p className="text-xs font-bold text-neon-red">
                         🚨 Known Scammer!
                       </p>
                     </div>
@@ -504,12 +521,12 @@ function ApprovalCard({ approval, selected, onToggleSelect, wallet, canRevoke })
 
           {approval.riskFactors && approval.riskFactors.length > 0 && (
             <div className={`${bgColors[riskColor]} border ${borderColors[riskColor]} rounded-lg p-4 mb-4`}>
-              <p className="text-sm font-semibold text-gray-700 mb-2">Why risky?</p>
+              <p className="text-sm font-semibold text-white mb-2">Why risky?</p>
               <ul className="space-y-2">
                 {approval.riskFactors.map((factor, idx) => (
-                  <li key={idx} className="text-sm text-gray-700">
-                    <span className="font-semibold">{factor.factor}:</span> {factor.description}
-                    <span className="text-xs text-gray-500 ml-2">(+{factor.points})</span>
+                  <li key={idx} className="text-sm text-text-primary">
+                    <span className="font-semibold text-white">{factor.factor}:</span> {factor.description}
+                    <span className={`text-xs ml-2 font-mono ${textColors[riskColor]}`}>(+{factor.points})</span>
                   </li>
                 ))}
               </ul>
@@ -518,10 +535,11 @@ function ApprovalCard({ approval, selected, onToggleSelect, wallet, canRevoke })
 
           <div className="flex gap-3">
             {canRevoke && !revokeSuccess && (
-              <button
+              <NeonButton
+                variant="danger"
                 onClick={handleRevoke}
                 disabled={revoking}
-                className="flex-1 px-4 py-2 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 disabled:opacity-50 flex items-center justify-center gap-2"
+                className="flex-1 !py-2"
               >
                 {revoking ? (
                   <>
@@ -534,42 +552,43 @@ function ApprovalCard({ approval, selected, onToggleSelect, wallet, canRevoke })
                     <span>Revoke</span>
                   </>
                 )}
-              </button>
+              </NeonButton>
             )}
 
             {revokeSuccess && (
-              <div className="flex-1 px-4 py-2 bg-green-600 text-white font-semibold rounded-lg flex items-center justify-center gap-2">
+              <div className="flex-1 px-4 py-2 bg-neon-green/20 text-neon-green border border-neon-green/50 font-semibold rounded-lg flex items-center justify-center gap-2">
                 <span>✅</span>
                 <span>Revoked!</span>
               </div>
             )}
 
             {!canRevoke && (
-              <div className="flex-1 px-4 py-2 bg-gray-300 text-gray-600 font-semibold rounded-lg text-center">
+              <div className="flex-1 px-4 py-2 bg-white/5 text-text-muted font-semibold rounded-lg text-center border border-white/10">
                 Connect wallet to revoke
               </div>
             )}
-            
-            <button
+
+            <NeonButton
+              variant="outline"
               onClick={() => setShowDetails(!showDetails)}
-              className="px-4 py-2 bg-gray-200 text-gray-700 font-semibold rounded-lg hover:bg-gray-300"
+              className="!py-2"
             >
               {showDetails ? 'Hide' : 'Details'}
-            </button>
+            </NeonButton>
           </div>
 
           {revokeError && (
-            <div className="mt-4 bg-red-50 border border-red-200 rounded-lg p-3">
-              <p className="text-sm text-red-800">
+            <div className="mt-4 bg-neon-red/10 border border-neon-red/30 rounded-lg p-3">
+              <p className="text-sm text-neon-red">
                 <strong>Error:</strong> {revokeError}
               </p>
             </div>
           )}
 
           {showDetails && (
-            <div className="mt-4 pt-4 border-t border-gray-200">
-              <p className="text-xs font-semibold text-gray-700 mb-2">Technical:</p>
-              <div className="text-xs font-mono text-gray-600 space-y-1 break-all">
+            <div className="mt-4 pt-4 border-t border-white/10">
+              <p className="text-xs font-semibold text-text-secondary mb-2">Technical:</p>
+              <div className="text-xs font-mono text-text-muted space-y-1 break-all">
                 <p><strong>Mint:</strong> {approval.mint}</p>
                 <p><strong>Account:</strong> {approval.tokenAccountAddress}</p>
                 <p><strong>Delegate:</strong> {approval.delegate}</p>
@@ -581,7 +600,7 @@ function ApprovalCard({ approval, selected, onToggleSelect, wallet, canRevoke })
 
         </div>
       </div>
-      
-    </div>
+
+    </GlassCard>
   );
 }

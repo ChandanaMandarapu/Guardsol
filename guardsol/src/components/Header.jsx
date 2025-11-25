@@ -23,29 +23,29 @@ export default function Header({ currentPage, setCurrentPage, onShowGuide }) {
   }, [connected, publicKey]);
 
   return (
-    <header className="bg-white shadow-sm">
+    <header className="glass-panel sticky top-0 z-50 border-b border-white/5 backdrop-blur-md">
       <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
 
         {/* Left side: Logo */}
         <div className="flex items-center gap-3">
-          <div className="text-3xl">🛡️</div>
+          <div className="text-3xl filter drop-shadow-[0_0_8px_rgba(0,246,255,0.5)]">🛡️</div>
           <div>
-            <h1 className="text-xl font-bold text-gray-900">
-              GuardSol
+            <h1 className="text-xl font-bold text-white tracking-wide">
+              Guard<span className="text-neon-blue">Sol</span>
             </h1>
-            <p className="text-sm text-gray-500">
-              Your Solana Security Shield
+            <p className="text-xs text-text-secondary font-mono tracking-wider">
+              SOLANA SECURITY SHIELD
             </p>
           </div>
         </div>
 
         {/* Middle: Navigation */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 bg-dark-card/50 p-1 rounded-xl border border-white/5">
           <button
             onClick={() => setCurrentPage('home')}
-            className={`px-4 py-2 rounded-lg font-semibold transition-colors ${currentPage === 'home'
-              ? 'bg-primary text-white'
-              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+            className={`px-4 py-2 rounded-lg font-medium transition-all duration-300 ${currentPage === 'home'
+              ? 'bg-neon-blue/10 text-neon-blue shadow-[0_0_10px_rgba(0,246,255,0.2)]'
+              : 'text-text-secondary hover:text-white hover:bg-white/5'
               }`}
           >
             🏠 Home
@@ -53,15 +53,15 @@ export default function Header({ currentPage, setCurrentPage, onShowGuide }) {
 
           <button
             onClick={() => setCurrentPage('admin')}
-            className={`px-4 py-2 rounded-lg font-semibold transition-colors flex items-center gap-2 ${currentPage === 'admin'
-              ? 'bg-purple-600 text-white'
-              : 'bg-purple-100 text-purple-700 hover:bg-purple-200'
+            className={`px-4 py-2 rounded-lg font-medium transition-all duration-300 flex items-center gap-2 ${currentPage === 'admin'
+              ? 'bg-neon-purple/10 text-neon-purple shadow-[0_0_10px_rgba(139,92,246,0.2)]'
+              : 'text-text-secondary hover:text-white hover:bg-white/5'
               }`}
           >
             <span>🛡️</span>
             <span>Admin Panel</span>
             {isAdminUser && (
-              <span className="px-2 py-0.5 bg-purple-800 text-white text-xs rounded">
+              <span className="px-2 py-0.5 bg-neon-purple/20 text-neon-purple text-[10px] rounded border border-neon-purple/30">
                 ADMIN
               </span>
             )}
@@ -73,14 +73,16 @@ export default function Header({ currentPage, setCurrentPage, onShowGuide }) {
           {connected && (
             <div
               onClick={onShowGuide}
-              className={`hidden md:flex items-center gap-2 px-3 py-1.5 rounded-full ${badge.color} text-white text-sm font-medium cursor-pointer hover:opacity-90 transition-opacity`}
+              className={`hidden md:flex items-center gap-2 px-3 py-1.5 rounded-full bg-dark-card border border-white/10 hover:border-neon-blue/50 transition-all cursor-pointer group`}
             >
-              <span>{badge.icon}</span>
-              <span>{badge.label}</span>
-              <span className="bg-white bg-opacity-20 px-1.5 rounded text-xs">{reputation}</span>
+              <span className="text-lg">{badge.icon}</span>
+              <span className={`text-sm font-medium ${badge.color.replace('bg-', 'text-').replace('-500', '-400')}`}>{badge.label}</span>
+              <span className="bg-white/5 px-2 py-0.5 rounded text-xs text-text-muted group-hover:text-white transition-colors">{reputation}</span>
             </div>
           )}
-          <WalletMultiButton className="!bg-primary hover:!bg-primaryHover" />
+          <div className="wallet-adapter-button-trigger">
+            <WalletMultiButton className="!bg-neon-gradient !text-black !font-semibold !rounded-xl !px-5 !py-2.5 hover:!shadow-neon-blue hover:!-translate-y-0.5 !transition-all !duration-300" />
+          </div>
         </div>
 
       </div>
