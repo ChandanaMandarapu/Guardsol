@@ -17,9 +17,9 @@ export default function LoadingSpinner({ size = 'md', text = null, fullScreen = 
 
     const spinner = (
         <div className="flex flex-col items-center justify-center gap-3">
-            <div className={`animate-spin rounded-full border-b-primary border-gray-200 ${sizes[size]}`} />
+            <div className={`animate-spin rounded-full border-b-neon-blue border-white/10 ${sizes[size]}`} />
             {text && (
-                <p className={`text-gray-600 font-medium ${textSizes[size]}`}>
+                <p className={`text-neon-blue font-medium ${textSizes[size]} animate-pulse`}>
                     {text}
                 </p>
             )}
@@ -28,7 +28,7 @@ export default function LoadingSpinner({ size = 'md', text = null, fullScreen = 
 
     if (fullScreen) {
         return (
-            <div className="fixed inset-0 bg-white bg-opacity-90 flex items-center justify-center z-50">
+            <div className="fixed inset-0 bg-dark-bg/90 backdrop-blur-sm flex items-center justify-center z-50">
                 {spinner}
             </div>
         );
