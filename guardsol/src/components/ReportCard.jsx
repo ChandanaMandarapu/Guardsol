@@ -3,6 +3,8 @@ import VotingButton from './VotingButton';
 import { approveReport, rejectReport, getReporterStats } from '../utils/admin';
 import DisputeModal from './DisputeModal';
 import { useWallet } from '@solana/wallet-adapter-react';
+import GlassCard from './UI/GlassCard';
+import NeonButton from './UI/NeonButton';
 
 export default function ReportCard({ report, isAdmin, adminWallet, onUpdate }) {
   const [processing, setProcessing] = useState(false);
@@ -51,26 +53,25 @@ export default function ReportCard({ report, isAdmin, adminWallet, onUpdate }) {
   }
 
   return (
-    <div className={`bg-white rounded-lg shadow-md p-6 border-2 ${report.verified ? 'border-green-200' : 'border-gray-200'
-      }`}>
+    <GlassCard className={`border ${report.verified ? 'border-neon-green/50 bg-neon-green/5' : 'border-neon-yellow/50 bg-neon-yellow/5'}`}>
 
       {/* Header */}
       <div className="flex items-start justify-between mb-4">
         <div className="flex-1">
           <div className="flex items-center gap-2 mb-2">
             {report.verified ? (
-              <span className="px-3 py-1 bg-green-100 text-green-800 text-sm font-bold rounded-full">
+              <span className="px-3 py-1 bg-neon-green/20 text-neon-green text-sm font-bold rounded-full border border-neon-green/30">
                 ✅ Verified
               </span>
             ) : (
-              <span className="px-3 py-1 bg-yellow-100 text-yellow-800 text-sm font-bold rounded-full">
+              <span className="px-3 py-1 bg-neon-yellow/20 text-neon-yellow text-sm font-bold rounded-full border border-neon-yellow/30">
                 ⏳ Pending
               </span>
             )}
           </div>
 
-          <h3 className="font-bold text-gray-900 mb-1">{report.reason}</h3>
-          <p className="text-xs font-mono text-gray-600 break-all">
+          <h3 className="font-bold text-white mb-1">{report.reason}</h3>
+          <p className="text-xs font-mono text-text-secondary break-all">
             {report.reported_address}
           </p>
         </div>
@@ -83,7 +84,7 @@ export default function ReportCard({ report, isAdmin, adminWallet, onUpdate }) {
           {report.verified && connected && (
             <button
               onClick={() => setShowDisputeModal(true)}
-              className="text-xs text-gray-500 hover:text-red-600 underline"
+              className="text-xs text-text-muted hover:text-neon-red underline transition-colors"
             >
               Dispute this report
             </button>
@@ -92,29 +93,29 @@ export default function ReportCard({ report, isAdmin, adminWallet, onUpdate }) {
       </div>
 
       {/* Reporter Info */}
-      <div className="bg-gray-50 rounded-lg p-3 mb-4">
-        <p className="text-xs text-gray-500 mb-1">Reported by:</p>
-        <p className="text-xs font-mono text-gray-700 break-all mb-2">
+      <div className="bg-dark-bg/50 rounded-lg p-3 mb-4 border border-white/5">
+        <p className="text-xs text-text-muted mb-1">Reported by:</p>
+        <p className="text-xs font-mono text-text-secondary break-all mb-2">
           {report.reporter_wallet || 'Anonymous'}
         </p>
 
         {reporterStats && (
           <div className="flex items-center gap-4 text-xs">
             <div>
-              <span className="text-gray-500">Reputation: </span>
-              <span className="font-bold text-gray-900">
+              <span className="text-text-muted">Reputation: </span>
+              <span className="font-bold text-white">
                 {reporterStats.reputation_score}/100
               </span>
             </div>
             <div>
-              <span className="text-gray-500">Reports: </span>
-              <span className="font-bold text-gray-900">
+              <span className="text-text-muted">Reports: </span>
+              <span className="font-bold text-white">
                 {reporterStats.total_reports}
               </span>
             </div>
             <div>
-              <span className="text-gray-500">Verified: </span>
-              <span className="font-bold text-green-700">
+              <span className="text-text-muted">Verified: </span>
+              <span className="font-bold text-neon-green">
                 {reporterStats.verified_reports}
               </span>
             </div>
@@ -125,13 +126,13 @@ export default function ReportCard({ report, isAdmin, adminWallet, onUpdate }) {
       {/* Evidence */}
       {report.evidence_url && (
         <div className="mb-4">
-          <p className="text-xs font-semibold text-gray-700 mb-1">Evidence:</p>
+          <p className="text-xs font-semibold text-white mb-1">Evidence:</p>
 
           <a
             href={report.evidence_url}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-xs text-blue-600 hover:underline break-all"
+            className="text-xs text-neon-blue hover:text-neon-blue/80 hover:underline break-all transition-colors"
           >
             {report.evidence_url}
           </a>
@@ -139,51 +140,53 @@ export default function ReportCard({ report, isAdmin, adminWallet, onUpdate }) {
       )}
 
       {/* Timestamp */}
-      <p className="text-xs text-gray-500 mb-4">
+      <p className="text-xs text-text-muted mb-4">
         Reported: {new Date(report.created_at).toLocaleString()}
       </p>
 
       {/* Admin Actions */}
       {isAdmin && !report.verified && (
         <div className="flex gap-3 mb-4">
-          <button
+          <NeonButton
             onClick={handleApprove}
             disabled={processing}
-            className="flex-1 px-4 py-2 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 disabled:opacity-50"
+            variant="primary"
+            className="flex-1 bg-neon-green/20 text-neon-green border-neon-green hover:bg-neon-green/30"
           >
             {processing ? 'Processing...' : '✅ Approve'}
-          </button>
+          </NeonButton>
 
-          <button
+          <NeonButton
             onClick={handleReject}
             disabled={processing}
-            className="flex-1 px-4 py-2 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 disabled:opacity-50"
+            variant="danger"
+            className="flex-1"
           >
             {processing ? 'Processing...' : '❌ Reject'}
-          </button>
+          </NeonButton>
         </div>
       )}
 
       {/* Details Toggle */}
       <button
         onClick={() => setShowDetails(!showDetails)}
-        className="text-xs text-gray-500 hover:text-gray-700"
+        className="text-xs text-text-muted hover:text-white transition-colors"
       >
         {showDetails ? '▼ Hide Details' : '▶ Show Details'}
       </button>
 
       {/* Details Section */}
       {showDetails && (
-        <div className="mt-3 pt-3 border-t border-gray-200">
-          <div className="text-xs font-mono text-gray-600 space-y-1">
-            <p><strong>Report ID:</strong> {report.id}</p>
-            <p><strong>Signature:</strong> {report.signature?.slice(0, 20)}...</p>
-            <p><strong>Stake:</strong> {report.stake_amount} SOL</p>
+        <div className="mt-3 pt-3 border-t border-white/10">
+          <div className="text-xs font-mono text-text-secondary space-y-1">
+            <p><strong className="text-white">Report ID:</strong> {report.id}</p>
+            <p><strong className="text-white">Signature:</strong> {report.signature?.slice(0, 20)}...</p>
+            <p><strong className="text-white">Stake:</strong> {report.stake_amount} SOL</p>
 
             {report.verified_by && (
               <>
-                <p><strong>Verified By:</strong> {report.verified_by}</p>
-                <p><strong>Verified At:</strong> {new Date(report.verified_at).toLocaleString()}</p>
+                <p><strong className="text-white">Verified By:</strong> {report.verified_by}</p>
+                <p><strong className="text-white">Verified At:</strong> {new Date(report.verified_at).toLocaleString()}</p>
               </>
             )}
           </div>
@@ -196,6 +199,6 @@ export default function ReportCard({ report, isAdmin, adminWallet, onUpdate }) {
         reportId={report.id}
         reportedAddress={report.reported_address}
       />
-    </div>
+    </GlassCard>
   );
 }

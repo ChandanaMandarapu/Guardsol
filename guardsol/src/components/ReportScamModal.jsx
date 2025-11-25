@@ -2,6 +2,8 @@
 import React, { useState } from 'react';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { submitScamReport, signMessageWithWallet } from '../utils/community-api';
+import GlassCard from './UI/GlassCard';
+import NeonButton from './UI/NeonButton';
 
 export default function ReportScamModal({
   isOpen,
@@ -116,15 +118,18 @@ export default function ReportScamModal({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6 max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+      <GlassCard className="max-w-md w-full p-6 max-h-[90vh] overflow-y-auto border-neon-red/30 shadow-[0_0_30px_rgba(255,59,48,0.2)]">
 
         {/* Header */}
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-xl font-bold text-gray-900">🚨 Report Scam</h3>
+        <div className="flex items-center justify-between mb-6">
+          <h3 className="text-xl font-bold text-white flex items-center gap-2">
+            <span className="filter drop-shadow-[0_0_5px_rgba(255,59,48,0.5)]">🚨</span>
+            Report Scam
+          </h3>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 text-2xl"
+            className="text-text-secondary hover:text-white text-2xl transition-colors"
           >
             ×
           </button>
@@ -133,17 +138,17 @@ export default function ReportScamModal({
         {success ? (
           // ✅ SUCCESS STATE
           <div className="text-center py-8">
-            <div className="text-6xl mb-4">✅</div>
-            <h4 className="text-xl font-bold text-green-900 mb-2">
+            <div className="text-6xl mb-4 filter drop-shadow-[0_0_10px_rgba(0,255,175,0.5)]">✅</div>
+            <h4 className="text-xl font-bold text-neon-green mb-2">
               Report Submitted!
             </h4>
-            <p className="text-green-700 mb-2">
+            <p className="text-white mb-2">
               Your report has been submitted and is <strong>pending review</strong>.
             </p>
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-text-secondary">
               Thank you for helping keep the community safe.
             </p>
-            <p className="text-xs text-gray-500 mt-4">
+            <p className="text-xs text-text-muted mt-4 animate-pulse">
               Refreshing page...
             </p>
           </div>
@@ -151,39 +156,39 @@ export default function ReportScamModal({
           <>
             {/* ⚠️ WALLET CONNECTION INFO */}
             {!connected && (
-              <div className="bg-blue-50 border-2 border-blue-200 rounded-lg p-4 mb-4">
+              <div className="bg-neon-blue/10 border border-neon-blue/30 rounded-lg p-4 mb-4">
                 <div className="flex items-center gap-2 mb-2">
                   <span className="text-2xl">ℹ️</span>
-                  <p className="font-bold text-blue-900">Reporting Anonymously</p>
+                  <p className="font-bold text-neon-blue">Reporting Anonymously</p>
                 </div>
-                <p className="text-sm text-blue-800 mb-2">
+                <p className="text-sm text-text-primary mb-2">
                   You are reporting this address without connecting a wallet.
                   Your report will be marked as <strong>Anonymous</strong>.
                 </p>
-                <p className="text-xs text-blue-700 bg-blue-100 rounded p-2 mt-2">
+                <p className="text-xs text-neon-blue bg-neon-blue/5 rounded p-2 mt-2 border border-neon-blue/20">
                   💡 Connecting your wallet helps build reputation and trust.
                 </p>
               </div>
             )}
 
             {/* Token Info */}
-            <div className="bg-gray-50 rounded-lg p-4 mb-4">
-              <p className="text-sm text-gray-500 mb-1">Reporting:</p>
-              <p className="font-semibold text-gray-900">{tokenName || 'Unknown Token'}</p>
-              <p className="text-xs font-mono text-gray-600 mt-1 break-all">
+            <div className="bg-dark-bg/50 border border-white/5 rounded-lg p-4 mb-4">
+              <p className="text-sm text-text-muted mb-1">Reporting:</p>
+              <p className="font-semibold text-white">{tokenName || 'Unknown Token'}</p>
+              <p className="text-xs font-mono text-text-secondary mt-1 break-all">
                 {scamAddress}
               </p>
             </div>
 
             {/* Reason Dropdown */}
             <div className="mb-4">
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
+              <label className="block text-sm font-semibold text-white mb-2">
                 Reason *
               </label>
               <select
                 value={reason}
                 onChange={(e) => setReason(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary"
+                className="w-full px-4 py-2 bg-dark-bg border border-white/10 rounded-lg focus:ring-2 focus:ring-neon-red focus:border-neon-red text-white outline-none transition-all"
               >
                 <option value="">Select reason...</option>
                 {reasonOptions.map(opt => (
@@ -195,14 +200,14 @@ export default function ReportScamModal({
             {/* Custom Reason (if "Other" selected) */}
             {reason === 'Other' && (
               <div className="mb-4">
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                <label className="block text-sm font-semibold text-white mb-2">
                   Please describe:
                 </label>
                 <textarea
                   value={customReason}
                   onChange={(e) => setCustomReason(e.target.value)}
                   placeholder="Describe the scam..."
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary"
+                  className="w-full px-4 py-2 bg-dark-bg border border-white/10 rounded-lg focus:ring-2 focus:ring-neon-red focus:border-neon-red text-white outline-none transition-all placeholder-text-muted"
                   rows={3}
                 />
               </div>
@@ -210,7 +215,7 @@ export default function ReportScamModal({
 
             {/* Evidence URL */}
             <div className="mb-4">
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
+              <label className="block text-sm font-semibold text-white mb-2">
                 Evidence URL (optional)
               </label>
               <input
@@ -218,17 +223,17 @@ export default function ReportScamModal({
                 value={evidenceUrl}
                 onChange={(e) => setEvidenceUrl(e.target.value)}
                 placeholder="https://twitter.com/..."
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary"
+                className="w-full px-4 py-2 bg-dark-bg border border-white/10 rounded-lg focus:ring-2 focus:ring-neon-red focus:border-neon-red text-white outline-none transition-all placeholder-text-muted"
               />
-              <p className="text-xs text-gray-500 mt-1">
+              <p className="text-xs text-text-muted mt-1">
                 Link to tweet, screenshot, etc.
               </p>
             </div>
 
             {/* Info Box (only if connected) */}
             {connected && (
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
-                <p className="text-xs text-blue-900">
+              <div className="bg-neon-blue/10 border border-neon-blue/30 rounded-lg p-3 mb-4">
+                <p className="text-xs text-neon-blue">
                   ℹ️ You'll be asked to sign a message to prove you own this wallet.
                   This prevents spam reports.
                 </p>
@@ -237,27 +242,29 @@ export default function ReportScamModal({
 
             {/* Error Message */}
             {error && (
-              <div className="bg-red-50 border border-red-200 rounded-lg p-3 mb-4">
-                <p className="text-sm text-red-800 font-semibold">
+              <div className="bg-neon-red/10 border border-neon-red/30 rounded-lg p-3 mb-4">
+                <p className="text-sm text-neon-red font-semibold">
                   ❌ {error}
                 </p>
               </div>
             )}
 
             {/* Action Buttons */}
-            <div className="flex gap-3">
-              <button
+            <div className="flex gap-3 mt-6">
+              <NeonButton
+                variant="outline"
                 onClick={onClose}
                 disabled={submitting}
-                className="flex-1 px-4 py-2 bg-gray-200 text-gray-700 font-semibold rounded-lg hover:bg-gray-300 disabled:opacity-50 transition-colors"
+                className="flex-1"
               >
                 Cancel
-              </button>
+              </NeonButton>
 
-              <button
+              <NeonButton
+                variant="danger"
                 onClick={handleSubmit}
                 disabled={submitting || !reason}
-                className="flex-1 px-4 py-2 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 disabled:opacity-50 flex items-center justify-center gap-2 transition-colors"
+                className="flex-1 flex items-center justify-center gap-2"
               >
                 {submitting ? (
                   <>
@@ -270,11 +277,11 @@ export default function ReportScamModal({
                     <span>Submit Report</span>
                   </>
                 )}
-              </button>
+              </NeonButton>
             </div>
           </>
         )}
-      </div>
+      </GlassCard>
     </div>
   );
 }
