@@ -5,10 +5,12 @@ import ReportScamModal from './ReportScamModal';
 import CommunityReports from './CommunityReports';
 import { hasApproval, formatTokenBalance } from '../utils/tokens';
 import { getScamScoreBadge, getScamScoreColor } from '../utils/scamDetection';
+import GlassCard from './UI/GlassCard';
+import NeonButton from './UI/NeonButton';
 
 export default function TokenList({ tokens = [], loading = false, viewingAddress = null }) {
   const { connected } = useWallet();
-  
+
   const [sortBy, setSortBy] = useState('scamScore');
   const [filterBy, setFilterBy] = useState('all');
 
@@ -43,12 +45,10 @@ export default function TokenList({ tokens = [], loading = false, viewingAddress
   if (loading) {
     return (
       <div className="max-w-7xl mx-auto px-4 py-8">
-        <div className="bg-white rounded-lg shadow-md p-8">
-          <div className="flex items-center justify-center gap-3">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-            <p className="text-lg text-gray-600">Loading tokens...</p>
-          </div>
-        </div>
+        <GlassCard className="flex items-center justify-center gap-3 min-h-[200px]">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-neon-blue"></div>
+          <p className="text-lg text-neon-blue animate-pulse">Loading tokens...</p>
+        </GlassCard>
       </div>
     );
   }
@@ -56,15 +56,15 @@ export default function TokenList({ tokens = [], loading = false, viewingAddress
   if (tokens.length === 0) {
     return (
       <div className="max-w-7xl mx-auto px-4 py-8">
-        <div className="bg-white rounded-lg shadow-md p-8 text-center">
-          <div className="text-6xl mb-4">🪙</div>
-          <h3 className="text-xl font-bold text-gray-900 mb-2">No Tokens Found</h3>
-          <p className="text-gray-600">
-            {connected 
+        <GlassCard className="text-center py-12">
+          <div className="text-6xl mb-4 filter drop-shadow-[0_0_10px_rgba(255,255,255,0.5)]">🪙</div>
+          <h3 className="text-xl font-bold text-white mb-2">No Tokens Found</h3>
+          <p className="text-text-secondary">
+            {connected
               ? 'This wallet has no tokens'
               : 'Enter a wallet address to scan for tokens'}
           </p>
-        </div>
+        </GlassCard>
       </div>
     );
   }
@@ -73,19 +73,19 @@ export default function TokenList({ tokens = [], loading = false, viewingAddress
     <div className="max-w-7xl mx-auto px-4 py-8">
       {/* Header Controls */}
       <div className="mb-6">
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">Your Tokens</h2>
-        <p className="text-gray-600 mb-4">
-          Found {tokens.length} token{tokens.length !== 1 ? 's' : ''}
+        <h2 className="text-2xl font-bold text-white mb-2">Your Tokens</h2>
+        <p className="text-text-secondary mb-4">
+          Found <span className="text-neon-blue font-bold">{tokens.length}</span> token{tokens.length !== 1 ? 's' : ''}
         </p>
 
         <div className="flex flex-wrap gap-4">
           {/* Sort */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Sort by</label>
+            <label className="block text-sm font-medium text-text-secondary mb-1">Sort by</label>
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
-              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary"
+              className="px-4 py-2 bg-dark-bg border border-white/10 rounded-lg focus:ring-2 focus:ring-neon-blue focus:border-neon-blue text-white outline-none transition-all"
             >
               <option value="scamScore">Risk (High → Low)</option>
               <option value="balance">Balance (High → Low)</option>
@@ -95,11 +95,11 @@ export default function TokenList({ tokens = [], loading = false, viewingAddress
 
           {/* Filter */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Filter by</label>
+            <label className="block text-sm font-medium text-text-secondary mb-1">Filter by</label>
             <select
               value={filterBy}
               onChange={(e) => setFilterBy(e.target.value)}
-              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary"
+              className="px-4 py-2 bg-dark-bg border border-white/10 rounded-lg focus:ring-2 focus:ring-neon-blue focus:border-neon-blue text-white outline-none transition-all"
             >
               <option value="all">All ({tokens.length})</option>
               <option value="scam">Likely Scams ({tokens.filter(t => t.scamScore >= 61).length})</option>
@@ -111,7 +111,7 @@ export default function TokenList({ tokens = [], loading = false, viewingAddress
         </div>
 
         {filterBy !== 'all' && (
-          <p className="text-sm text-gray-500 mt-3">
+          <p className="text-sm text-text-muted mt-3">
             Showing {filteredAndSortedTokens.length} of {tokens.length} tokens
           </p>
         )}
@@ -120,9 +120,9 @@ export default function TokenList({ tokens = [], loading = false, viewingAddress
       {/* Token Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredAndSortedTokens.map((token) => (
-          <TokenCard 
-            key={token.id} 
-            token={token} 
+          <TokenCard
+            key={token.id}
+            token={token}
             viewingAddress={viewingAddress}
           />
         ))}
@@ -146,26 +146,32 @@ function TokenCard({ token, viewingAddress }) {
   const color = getScamScoreColor(scamScore);
 
   const borderColor = {
-    red: 'border-red-200',
-    yellow: 'border-yellow-200',
-    green: 'border-green-200',
+    red: 'border-neon-red',
+    yellow: 'border-neon-yellow',
+    green: 'border-neon-green',
   }[color];
 
   const bgColor = {
-    red: 'bg-red-50',
-    yellow: 'bg-yellow-50',
-    green: 'bg-green-50',
+    red: 'bg-neon-red/10',
+    yellow: 'bg-neon-yellow/10',
+    green: 'bg-neon-green/10',
+  }[color];
+
+  const textColor = {
+    red: 'text-neon-red',
+    yellow: 'text-neon-yellow',
+    green: 'text-neon-green',
   }[color];
 
   return (
     <>
-      <div className={`bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow border-2 ${borderColor}`}>
+      <GlassCard className={`border ${borderColor} hover:shadow-[0_0_15px_rgba(0,0,0,0.3)] transition-all duration-300 group`}>
 
         {/* Badge */}
         <div className="flex justify-end mb-2">
-          <div className={`${bgColor} px-3 py-1 rounded-full flex items-center gap-1`}>
-            <span>{badge.emoji}</span>
-            <span className="text-xs font-semibold text-gray-700">{badge.text}</span>
+          <div className={`${bgColor} border border-white/5 px-3 py-1 rounded-full flex items-center gap-1`}>
+            <span className="filter drop-shadow-[0_0_5px_rgba(255,255,255,0.3)]">{badge.emoji}</span>
+            <span className={`text-xs font-semibold ${textColor}`}>{badge.text}</span>
           </div>
         </div>
 
@@ -175,29 +181,33 @@ function TokenCard({ token, viewingAddress }) {
             <img
               src={image}
               alt={name}
-              className="w-12 h-12 rounded-full object-cover"
+              className="w-12 h-12 rounded-full object-cover border border-white/10 group-hover:scale-105 transition-transform"
               onError={(e) => (e.target.style.display = 'none')}
             />
-          ) : null}
+          ) : (
+            <div className="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center border border-white/10">
+              <span className="text-xl">🪙</span>
+            </div>
+          )}
 
           <div className="flex-1 min-w-0">
-            <h3 className="font-semibold text-gray-900 truncate">{name}</h3>
-            <p className="text-sm text-gray-500 truncate">{symbol}</p>
+            <h3 className="font-semibold text-white truncate group-hover:text-neon-blue transition-colors">{name}</h3>
+            <p className="text-sm text-text-secondary truncate">{symbol}</p>
           </div>
         </div>
 
         {/* Balance */}
-        <div className="mb-4">
-          <p className="text-sm text-gray-500 mb-1">Balance</p>
-          <p className="text-2xl font-bold text-gray-900">{formatTokenBalance(token)}</p>
-          <p className="text-xs text-gray-500 mt-1">{symbol}</p>
+        <div className="mb-4 bg-dark-bg/30 p-3 rounded-lg border border-white/5">
+          <p className="text-sm text-text-muted mb-1">Balance</p>
+          <p className="text-2xl font-bold text-white font-mono">{formatTokenBalance(token)}</p>
+          <p className="text-xs text-text-secondary mt-1">{symbol}</p>
         </div>
 
         {/* Scam Reasons */}
         {scamReasons.length > 0 && (
           <div className={`${bgColor} border ${borderColor} rounded-lg p-3 mb-4`}>
-            <p className="text-xs font-semibold text-gray-700 mb-1">Why flagged:</p>
-            <ul className="text-xs text-gray-600 space-y-1">
+            <p className="text-xs font-semibold text-white mb-1">Why flagged:</p>
+            <ul className="text-xs text-text-primary space-y-1">
               {scamReasons.map((reason, idx) => (
                 <li key={idx}>• {reason}</li>
               ))}
@@ -209,14 +219,15 @@ function TokenCard({ token, viewingAddress }) {
         <CommunityReports address={token.mint} />
 
         {/* Report Button */}
-        <button
+        <NeonButton
+          variant="danger"
           onClick={() => setShowReportModal(true)}
-          className="w-full px-4 py-2 bg-red-50 border border-red-200 text-red-700 font-semibold rounded-lg hover:bg-red-100 flex items-center justify-center gap-2 transition-colors"
+          className="w-full mt-4 flex items-center justify-center gap-2"
         >
           <span>🚨</span>
           <span>Report as Scam</span>
-        </button>
-      </div>
+        </NeonButton>
+      </GlassCard>
 
       {/* Report Modal - NOW WITH viewingAddress */}
       <ReportScamModal
