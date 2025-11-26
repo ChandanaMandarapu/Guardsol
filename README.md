@@ -494,7 +494,7 @@ REACT_APP_SOLANA_NETWORK=mainnet-beta npm start
 We welcome contributions! Here's how you can help:
 
 ### Reporting Bugs
-1. Check if the bug is already reported in [Issues](https://github.com/yourusername/guardsol/issues)
+1. Check if the bug is already reported in [Issues](https://github.com/ChandanaMandarapu/guardsol/issues)
 2. Create a new issue with detailed reproduction steps
 3. Include screenshots and error messages
 
@@ -537,18 +537,9 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-## 📞 Contact & Support
-
-- **Website**: [https://guardsol-js1arycwh-chandanamandarapus-projects.vercel.app](https://guardsol-js1arycwh-chandanamandarapus-projects.vercel.app)
-- **GitHub Issues**: [Report bugs or request features](https://github.com/yourusername/guardsol/issues)
-- **Twitter**: [@GuardSol](https://twitter.com/guardsol) (coming soon)
-- **Discord**: [Join our community](https://discord.gg/guardsol) (coming soon)
-
----
-
 ## 💡 Why GuardSol?
 
-In the fast-moving world of crypto, security is everything. We built GuardSol because we saw too many people lose their hard-earned crypto to scams and malicious approvals. 
+In the fast-moving world of crypto, security is everything. I built GuardSol because I saw too many people lose their hard-earned crypto to scams and malicious approvals. 
 
 **Our mission**: Make Solana the safest blockchain ecosystem by empowering users with transparency, control, and community protection.
 
@@ -572,6 +563,6 @@ If GuardSol helped protect your wallet, please consider:
 
 **Built with ❤️ for the Solana community**
 
-[Live Demo](https://guardsol-js1arycwh-chandanamandarapus-projects.vercel.app) • [Report Bug](https://github.com/yourusername/guardsol/issues) • [Request Feature](https://github.com/yourusername/guardsol/issues)
+[Live Demo] - https://guardsol.vercel.app/ • 
 
 </div>
