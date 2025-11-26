@@ -533,7 +533,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - **Supabase** - For the powerful backend platform
 - **Vercel** - For seamless deployment
 - **Solana Community** - For feedback and support
-- **All Contributors** - Thank you for making GuardSol better!
+- **Chandana Mandarapu - ME** - Thank you for making GuardSol better!
 
 ---
 
