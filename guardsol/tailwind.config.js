@@ -9,13 +9,12 @@ module.exports = {
         // Existing colors (kept for safety, though we will migrate)
         primary: '#00F6FF', // Updated to Neon Blue
         primaryHover: '#00D0D9',
-
         // Neon Shield Palette
         neon: {
           blue: '#00F6FF',
           purple: '#8B5CF6',
           pink: '#EC4899',
-          green: '#00FFAF',
+          green: '#00F6FF', // Changed to match your cyan/turquoise design
           red: '#FF4D4D',
           yellow: '#FFC800',
         },
