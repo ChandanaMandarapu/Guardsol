@@ -13,6 +13,7 @@ import TokenList from './components/TokenList';
 import AdminPanel from './components/AdminPanel';
 import NetworkStats from './components/NetworkStats';
 import ReputationGuide from './components/ReputationGuide';
+import TxSimulator from './components/TxSimulator';
 
 import { validateConfig } from './utils/config';
 import {
@@ -27,7 +28,7 @@ function AppContent() {
   const [activeAddress, setActiveAddress] = useState(null);
   const [tokens, setTokens] = useState([]);
   const [tokensLoading, setTokensLoading] = useState(false);
-  const [currentPage, setCurrentPage] = useState('home'); // 'home' | 'admin'
+  const [currentPage, setCurrentPage] = useState('home'); // home | simulator | admin
   const [showReputationGuide, setShowReputationGuide] = useState(false);
 
   const { publicKey, connected, wallet } = useWallet();
@@ -35,7 +36,7 @@ function AppContent() {
   // Init analytics once
   useEffect(() => {
     initGA();
-    trackPageView(window.location.pathname);
+    trackPageView('/');
   }, []);
 
   // Track page changes
@@ -50,6 +51,7 @@ function AppContent() {
       trackWalletConnected(wallet?.adapter?.name || 'Unknown');
     } else if (!connected) {
       trackWalletDisconnected();
+      setActiveAddress(null);
     }
   }, [connected, publicKey, wallet]);
 
@@ -73,24 +75,37 @@ function AppContent() {
 
   return (
     <MainLayout>
-      {/* 🔒 SECURITY TICKER — GLOBAL, TOP */}
+      {/* 🔒 GLOBAL SECURITY TICKER */}
       <SecurityTicker />
 
+      {/* 🔝 HEADER */}
       <Header
         currentPage={currentPage}
         setCurrentPage={setCurrentPage}
         onShowGuide={() => setShowReputationGuide(true)}
       />
 
+      {/* 🧠 REPUTATION GUIDE MODAL */}
       {showReputationGuide && (
         <ReputationGuide onClose={() => setShowReputationGuide(false)} />
       )}
 
-      {currentPage === 'admin' ? (
-        <main>
+      {/* 🛡️ ADMIN PANEL */}
+      {currentPage === 'admin' && (
+        <main className="min-h-screen">
           <AdminPanel />
         </main>
-      ) : (
+      )}
+
+      {/* 🧪 TRANSACTION SIMULATOR (SEPARATE PAGE) */}
+      {currentPage === 'simulator' && (
+        <main className="min-h-screen flex items-center justify-center px-4">
+          <TxSimulator />
+        </main>
+      )}
+
+      {/* 🏠 HOME / WALLET SCAN */}
+      {currentPage === 'home' && (
         <main>
           <WalletInfo
             activeAddress={activeAddress}
@@ -98,7 +113,7 @@ function AppContent() {
             onShowGuide={() => setShowReputationGuide(true)}
           />
 
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8">
+          <div className="max-w-7xl mx-auto px-4 mt-8">
             <NetworkStats />
           </div>
 
