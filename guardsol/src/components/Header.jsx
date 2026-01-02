@@ -58,6 +58,14 @@ export default function Header({ currentPage, setCurrentPage, onShowGuide }) {
           </NavButton>
 
           <NavButton
+            active={currentPage === 'ntg'}
+            onClick={() => setCurrentPage('ntg')}
+            activeClass="bg-cyan-500/10 text-cyan-400"
+          >
+            🧬 NTG Scanner
+          </NavButton>
+
+          <NavButton
             active={currentPage === 'admin'}
             onClick={() => setCurrentPage('admin')}
             activeClass="bg-neon-purple/10 text-neon-purple"
@@ -94,11 +102,10 @@ function NavButton({ children, active, onClick, activeClass }) {
   return (
     <button
       onClick={onClick}
-      className={`px-4 py-2 rounded-lg font-medium transition-all ${
-        active
+      className={`px-4 py-2 rounded-lg font-medium transition-all ${active
           ? `${activeClass} shadow-[0_0_10px_rgba(0,255,255,0.15)]`
           : 'text-text-secondary hover:text-white hover:bg-white/5'
-      }`}
+        }`}
     >
       {children}
     </button>
