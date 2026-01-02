@@ -6,6 +6,8 @@ export default function TxSimulator() {
   const [status, setStatus] = useState('idle'); // idle | analyzing | done
   const [result, setResult] = useState(null);
 
+  const DEMO_TX = 'AQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAcJjkQt4XcX43Vk8FZ7QbUVXSF5oo9jt7x2Dm0E9ut/y+jagnMHpK8BDHt0PpssHwXGD2fBxS6MWBoxptD2u9TvrgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA1NjSeWM5+GSJdoQd43Al9SVVXC9FfWGwbe7icpomwAUGodgXkTdUKpg0N73+KnqyVX9TXIp4citopJ3AAAAAAAah2BelAgULaAeR5s5tuI4eW3FQ9h/GeQpOtNEAAAAABqfVFxjHdMkoVmOYaR1etoteuKObS21cc1VbIQAAAAAGp9UXGSxcUSGMyUw9SvX/WNruCJuh/UTj29mKAAAAAAan1RcZNYTQ/u2bs0MdEyBr5UQoG1e4VmzFN1/0AAAAijW940iwWddz25ZC37fI0ue5fa+eTbC2ynBM3b0t4pcDAgMAAQBgAwAAAI5ELeF3F+N1ZPBWe0G1FV0heaKPY7e8dg5tBPbrf8voBAAAAAAAAABzZWVkgJaYAAAAAADIAAAAAAAAAAah2BeRN1QqmDQ3vf4qerJVf1NcinhyK2ikncAAAAAABAIBB3QAAAAAjkQt4XcX43Vk8FZ7QbUVXSF5oo9jt7x2Dm0E9ut/y+iORC3hdxfjdWTwVntBtRV0heaKPY7e8dg5tBPbrf8voAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQGAQMGCAUABAIAAAA=';
+
   async function runSimulation() {
     if (!input.trim()) return;
 
@@ -33,12 +35,20 @@ export default function TxSimulator() {
       </p>
 
       {/* INPUT */}
-      <textarea
-        value={input}
-        onChange={(e) => setInput(e.target.value)}
-        placeholder="Paste base64 transaction here…"
-        className="w-full h-36 bg-dark-bg text-neon-green font-mono p-4 rounded-lg border border-neon-green/30 focus:outline-none focus:border-neon-green/60 transition"
-      />
+      <div className="relative">
+        <textarea
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          placeholder="Paste base64 transaction here…"
+          className="w-full h-36 bg-dark-bg text-neon-green font-mono p-4 rounded-lg border border-neon-green/30 focus:outline-none focus:border-neon-green/60 transition"
+        />
+        <button
+          onClick={() => setInput(DEMO_TX)}
+          className="absolute top-2 right-2 text-xs bg-neon-green/10 text-neon-green px-2 py-1 rounded hover:bg-neon-green/20 transition-colors"
+        >
+          LOAD DEMO
+        </button>
+      </div>
 
       {/* ACTION */}
       <button
@@ -65,13 +75,12 @@ export default function TxSimulator() {
           {result.success ? (
             <>
               <h3
-                className={`text-2xl font-bold mb-1 ${
-                  result.analysis.verdict === 'DANGER'
+                className={`text-2xl font-bold mb-1 ${result.analysis.verdict === 'DANGER'
                     ? 'text-red-500'
                     : result.analysis.verdict === 'CAUTION'
-                    ? 'text-yellow-400'
-                    : 'text-neon-green'
-                }`}
+                      ? 'text-yellow-400'
+                      : 'text-neon-green'
+                  }`}
               >
                 {result.analysis.verdict}
               </h3>
