@@ -14,6 +14,7 @@ import AdminPanel from './components/AdminPanel';
 import NetworkStats from './components/NetworkStats';
 import ReputationGuide from './components/ReputationGuide';
 import TxSimulator from './components/TxSimulator';
+import NTGDashboard from './ntg/components/NTGDashboard';
 
 import { validateConfig } from './utils/config';
 import {
@@ -102,6 +103,11 @@ function AppContent() {
         <main className="min-h-screen flex items-center justify-center px-4">
           <TxSimulator />
         </main>
+      )}
+
+      {/* 🧬 NTG SCANNER (SEPARATE PAGE) */}
+      {currentPage === 'ntg' && (
+        <NTGDashboard />
       )}
 
       {/* 🏠 HOME / WALLET SCAN */}
