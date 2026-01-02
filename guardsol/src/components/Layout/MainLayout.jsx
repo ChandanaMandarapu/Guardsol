@@ -34,16 +34,17 @@ const MainLayout = ({ children }) => {
                             <div className="flex gap-8">
                                 <a href="/terms.html" target="_blank" rel="noopener noreferrer" className="text-sm text-text-muted hover:text-neon-blue transition-colors duration-300">Terms</a>
                                 <a href="/privacy.html" target="_blank" rel="noopener noreferrer" className="text-sm text-text-muted hover:text-neon-blue transition-colors duration-300">Privacy</a>
-                                <a href="https://github.com/yourusername/guardsol" target="_blank" rel="noopener noreferrer" className="text-sm text-text-muted hover:text-neon-blue transition-colors duration-300">GitHub</a>
+                                <a href="https://github.com/ChandanaMandarapu" target="_blank" rel="noopener noreferrer" className="text-sm text-text-muted hover:text-neon-blue transition-colors duration-300">GitHub</a>
                             </div>
                         </div>
-                        <p className="text-center text-xs text-text-muted mt-6 font-mono">
-                            Not financial advice. Use at your own risk. Always verify independently.
-                        </p>
+                        <div className="flex flex-col md:flex-row justify-between items-center mt-6 text-xs text-text-muted font-mono border-t border-white/5 pt-4">
+                            <p>Effective Date: November 30, 2025 • Last Updated: January 2, 2026</p>
+                            <p>Not financial advice. Use at your own risk. Always verify independently.</p>
+                        </div>
                     </div>
                 </footer>
-            </div>
-        </div>
+            </div >
+        </div >
     );
 };
 
