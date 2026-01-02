@@ -6,8 +6,8 @@ import {
 } from '@solana/web3.js';
 import { TOKEN_PROGRAM_ID } from '@solana/spl-token';
 
-// Public RPC (free)
-const RPC_URL = 'https://api.devnet.solana.com';
+// Public RPC (using Helius for reliability on Mainnet)
+const RPC_URL = 'https://mainnet.helius-rpc.com/?api-key=6182eb9f-228b-4625-a950-515ac4d00748';
 const connection = new Connection(RPC_URL, 'confirmed');
 
 export async function simulateBase64Transaction(base64Tx) {
@@ -65,9 +65,9 @@ function analyzeTransaction(simResult, tx) {
       const programId = ix.programId?.toBase58
         ? ix.programId.toBase58()
         : new PublicKey(ix.programIdIndex !== undefined
-            ? tx.message.staticAccountKeys[ix.programIdIndex]
-            : ix.programId
-          ).toBase58();
+          ? tx.message.staticAccountKeys[ix.programIdIndex]
+          : ix.programId
+        ).toBase58();
 
       // SPL Token program
       if (programId === TOKEN_PROGRAM_ID.toBase58()) {
