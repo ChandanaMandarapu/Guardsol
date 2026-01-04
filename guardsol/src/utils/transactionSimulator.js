@@ -6,8 +6,14 @@ import {
 } from '@solana/web3.js';
 import { TOKEN_PROGRAM_ID } from '@solana/spl-token';
 
-// Public RPC (using Helius for reliability on Mainnet)
-const RPC_URL = 'https://mainnet.helius-rpc.com/?api-key=6182eb9f-228b-4625-a950-515ac4d00748';
+
+const HELIUS_API_KEY = process.env.REACT_APP_HELIUS_KEY;
+
+if (!HELIUS_API_KEY) {
+  throw new Error('REACT_APP_HELIUS_KEY is missing in .env');
+}
+
+const RPC_URL = `https://mainnet.helius-rpc.com/?api-key=${HELIUS_API_KEY}`;
 const connection = new Connection(RPC_URL, 'confirmed');
 
 export async function simulateBase64Transaction(base64Tx) {
@@ -64,16 +70,18 @@ function analyzeTransaction(simResult, tx) {
     try {
       const programId = ix.programId?.toBase58
         ? ix.programId.toBase58()
-        : new PublicKey(ix.programIdIndex !== undefined
-          ? tx.message.staticAccountKeys[ix.programIdIndex]
-          : ix.programId
-        ).toBase58();
+        : new PublicKey(
+            ix.programIdIndex !== undefined
+              ? tx.message.staticAccountKeys[ix.programIdIndex]
+              : ix.programId
+          ).toBase58();
 
       // SPL Token program
       if (programId === TOKEN_PROGRAM_ID.toBase58()) {
-        const data = ix.data instanceof Uint8Array
-          ? ix.data
-          : Buffer.from(ix.data, 'base64');
+        const data =
+          ix.data instanceof Uint8Array
+            ? ix.data
+            : Buffer.from(ix.data, 'base64');
 
         const instructionType = data[0];
 
