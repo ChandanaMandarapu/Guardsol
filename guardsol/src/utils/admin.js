@@ -1,7 +1,8 @@
 import { supabase } from './supabaseClient';
 
 
-const ADMIN_WALLET = 'EB51DpnWfwM91HHipvub1VCcz5bSrJ7cjNentHcvgRBM';
+const ADMIN_WALLET = process.env.REACT_APP_ADMIN_WALLET || '';
+
 
 
 export function isAdmin(walletAddress) {
