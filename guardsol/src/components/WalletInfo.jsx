@@ -6,7 +6,6 @@ import { getUserReputation, getReputationBadge } from '../utils/reputation';
 import GlassCard from './UI/GlassCard';
 import NeonButton from './UI/NeonButton';
 
-// Now receives activeAddress and setActiveAddress as props
 export default function WalletInfo({ activeAddress, setActiveAddress, onShowGuide }) {
   const { publicKey, connected } = useWallet();
   const { connection } = useConnection();

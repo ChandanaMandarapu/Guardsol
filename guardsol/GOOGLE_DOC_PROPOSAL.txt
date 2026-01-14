@@ -1,0 +1,275 @@
+GUARDSOL - SOLANA WALLET SECURITY PLATFORM
+Developer Tooling Grant Proposal
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. PROJECT OVERVIEW
+
+GuardSol is a security platform that helps Solana users protect their wallets from scams, malicious token approvals, and risky tokens. It combines automated risk analysis with community-powered scam detection.
+
+Live Demo: https://guardsol.vercel.app/
+GitHub: [Add your GitHub repo link here]
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+2. THE PROBLEM WE'RE SOLVING
+
+Solana users face critical security challenges:
+• Malicious token approvals that can drain wallets
+• Scam tokens disguised as legitimate projects  
+• No easy way to see what approvals they've granted
+• Lack of community-driven scam detection specifically for Solana
+
+Current solutions are either:
+• Too technical for average users
+• Don't exist for Solana specifically  
+• Lack community verification features
+• Require deep blockchain knowledge
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+3. WHAT WE'VE BUILT (CURRENT STATE)
+
+✅ COMPLETED FEATURES:
+
+Core Security Features:
+• Wallet risk scoring algorithm (analyzes age, transactions, approvals, reports)
+• Token approval scanner (detects dangerous approvals)
+• One-click approval revocation (single or batch)
+• Manual address lookup (check any wallet without connecting)
+
+Community Features:
+• Scam reporting system with evidence submission
+• Community voting on reports
+• Dispute resolution mechanism  
+• Reputation system for reporters
+• Admin verification panel
+
+Technical Implementation:
+• React frontend with Solana wallet adapter integration
+• Supabase backend with PostgreSQL database
+• Vercel serverless API functions
+• Rate limiting and security headers
+• Real-time network statistics
+
+UI/UX:
+• Modern, responsive design
+• Mobile-friendly interface
+• Export reports as PDF
+• Share functionality
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+4. WHAT WE WANT TO BUILD (GRANT SCOPE)
+
+This grant will fund 1.5-2 months of full-time development to add critical features that will make GuardSol production-ready and widely useful for the Solana ecosystem.
+
+MILESTONE 1 (Weeks 1-3): Enhanced Security Features
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. NFT Approval Scanning
+   • Detect NFT collection approvals (often used in scams)
+   • Show which NFTs have granted approvals
+   • One-click revoke for NFT approvals
+   • Risk scoring for NFT collections
+
+2. Transaction History Analysis
+   • Scan recent transactions for suspicious patterns
+   • Flag interactions with known scam programs
+   • Show transaction risk timeline
+   • Identify potential phishing attempts
+
+3. Enhanced Risk Algorithm
+   • Integrate on-chain data for better scoring
+   • Add token holder analysis
+   • Check for wash trading patterns
+   • Improve accuracy with historical data
+
+Deliverables:
+✓ NFT approval scanner working on mainnet
+✓ Transaction analysis integrated into risk score
+✓ Updated documentation
+✓ Test coverage for new features
+
+
+MILESTONE 2 (Weeks 4-6): Community & Accessibility
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. Browser Extension (MVP)
+   • Chrome/Brave extension for quick wallet checks
+   • Right-click any Solana address to check risk
+   • Popup showing risk score and key metrics
+   • Alert badges for high-risk wallets
+
+2. API for Developers
+   • Public API for wallet risk checking
+   • Rate-limited free tier
+   • Documentation and examples
+   • Integration guides for other dApps
+
+3. Improved Community Features
+   • Email notifications for report updates
+   • Better evidence display (screenshots, links)
+   • Report categories (phishing, rug pull, fake token, etc.)
+   • Trending scams dashboard
+
+4. Performance Optimization
+   • Caching layer for faster scans
+   • Optimized RPC calls
+   • Database query optimization
+   • CDN for static assets
+
+Deliverables:
+✓ Browser extension published to Chrome Web Store
+✓ Public API with documentation
+✓ 50%+ faster scan times
+✓ Email notification system working
+
+
+MILESTONE 3 (Weeks 7-8): Polish & Launch
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. User Onboarding
+   • Interactive tutorial for first-time users
+   • Video guides for key features
+   • FAQ section
+   • Help documentation
+
+2. Analytics & Monitoring
+   • Track usage metrics
+   • Monitor error rates
+   • Performance dashboards
+   • User feedback collection
+
+3. Marketing & Community
+   • Launch announcement on Twitter/X
+   • Post in Solana Discord communities
+   • Create demo videos
+   • Write blog post about Solana security
+
+4. Bug Fixes & Refinement
+   • Address user feedback
+   • Fix edge cases
+   • Improve error handling
+   • Add loading states and better UX
+
+Deliverables:
+✓ Onboarding flow complete
+✓ Analytics dashboard
+✓ 100+ active users
+✓ Public launch completed
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+5. WHY THIS MATTERS FOR SOLANA
+
+Security is critical for mainstream adoption. Every scam or wallet drain:
+• Damages Solana's reputation
+• Scares away new users
+• Reduces trust in the ecosystem
+• Creates negative press
+
+GuardSol helps by:
+• Making security accessible to non-technical users
+• Building a community defense network
+• Providing tools other dApps can integrate
+• Educating users about wallet security
+• Creating a safer ecosystem for everyone
+
+Target Impact:
+• 1,000+ active users in first 3 months
+• 500+ scam reports submitted
+• 10+ dApps integrating our API
+• Measurable reduction in scam victims
+• Increased user confidence in Solana
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+6. BUDGET BREAKDOWN
+
+Total Request: $10,000 USD
+
+Development (60%): $6,000
+• NFT approval scanning: $1,500
+• Transaction analysis: $1,500
+• Browser extension: $1,500
+• API development: $1,000
+• Performance optimization: $500
+
+Infrastructure (15%): $1,500
+• Supabase Pro plan (2 months): $500
+• Premium RPC endpoints: $500
+• CDN and hosting: $300
+• Email service (notifications): $200
+
+Marketing & Community (15%): $1,500
+• Video production: $500
+• Content creation: $400
+• Community management: $400
+• Social media ads: $200
+
+Miscellaneous (10%): $1,000
+• Testing and QA: $400
+• Documentation: $300
+• Contingency: $300
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+7. ABOUT ME (SOLO DEVELOPER)
+
+I'm a solo developer passionate about Solana and blockchain security. 
+
+Background:
+• Full-stack developer with React and Node.js experience
+• Built GuardSol from scratch over the past few weeks
+• Active in Solana community
+• First major Solana project
+
+Why I'm the right person:
+• Already shipped a working product (https://guardsol.vercel.app/)
+• Committed to Solana ecosystem long-term
+• Responsive to user feedback
+• Focused on solving real problems, not hype
+
+This is my first step into the Solana ecosystem, and I want to prove my worth by building something that genuinely helps users stay safe. I've worked day and night on GuardSol because I believe security is the foundation of trust in crypto.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+8. TIMELINE
+
+Week 1-3: NFT scanning + transaction analysis
+Week 4-6: Browser extension + API + community features  
+Week 7-8: Polish, launch, user acquisition
+
+Total: 8 weeks (2 months)
+
+Progress updates: Weekly on Twitter and bi-weekly detailed reports to Solana Foundation
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+9. SUCCESS METRICS
+
+After 2 months:
+• 1,000+ unique wallet scans
+• 500+ community reports submitted
+• Browser extension: 100+ installs
+• API: 5+ integrations
+• 95%+ uptime
+• <2s average scan time
+
+Long-term (6 months):
+• 10,000+ users
+• Become go-to security tool for Solana users
+• Partner with major Solana wallets
+• Expand to other security features
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+10. LINKS & RESOURCES
+
+Live App: https://guardsol.vercel.app/
+GitHub: [Add your GitHub repo link]
+Twitter: [If you have one]
+Email: [Your email]
+
+Thank you for considering GuardSol for the Solana Foundation grant. I'm committed to making Solana the safest blockchain ecosystem, one wallet at a time.

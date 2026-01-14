@@ -20,7 +20,7 @@ export async function parseToken2022(tokenAddress, connection) {
 
         const data = accountInfo.value.data;
 
-        // Check if it's actually a Token-2022 token
+        // checks if it's actually a Token-2022 token
         if (accountInfo.value.owner.toString() !== TOKEN_2022_PROGRAM_ID.toString()) {
             return {
                 isToken2022: false,

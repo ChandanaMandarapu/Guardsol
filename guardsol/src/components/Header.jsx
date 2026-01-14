@@ -38,7 +38,7 @@ export default function Header({ currentPage, setCurrentPage, onShowGuide }) {
           </div>
         </div>
 
-        {/* Navigation */}
+        {/* Navigation updatess*/}
         <div className="flex items-center gap-2 bg-dark-card/50 p-1 rounded-xl border border-white/5">
 
           <NavButton

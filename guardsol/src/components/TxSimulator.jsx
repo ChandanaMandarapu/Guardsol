@@ -14,7 +14,7 @@ export default function TxSimulator() {
     setStatus('analyzing');
     setResult(null);
 
-    // Matrix-style delay for UX (purely visual)
+    // Matrix-style delay for UX just for ui visual effets
     setTimeout(async () => {
       const res = await simulateBase64Transaction(input);
       setResult(res);
