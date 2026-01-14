@@ -1,7 +1,7 @@
 
 /**
  * Calculates risk score for Token-2022 assets
- * @param {Object} extensions - Map of extensions found on the token
+ * @param {Object} extensions 
  * @returns {Object} Risk score and breakdown
  */
 export function calculateNTGRisk(extensions) {

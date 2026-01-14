@@ -58,9 +58,7 @@ export function sanitizeText(text) {
         .substring(0, 500); // Max length
 }
 
-/**
- * Validate signature
- */
+// validate sign
 export function isValidSignature(signature) {
     if (!signature || typeof signature !== 'string') {
         return false;

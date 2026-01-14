@@ -44,7 +44,7 @@ export async function getTokenVotes(tokenAddress) {
         return {
             flags,
             verifications,
-            recentVotes: data.slice(0, 5) // Show last 5
+            recentVotes: data.slice(0, 5) 
         };
     } catch (err) {
         // If table doesn't exist yet, return 0s gracefully so UI doesn't crash......
