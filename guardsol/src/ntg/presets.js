@@ -38,6 +38,12 @@ export const RWA_PRESETS = [
         address: '4k3Dyjzvzp8eMZWUXbBCjEvwSkkk59S5iCNLY3QrkX6R',
         icon: '🌊',
         description: 'Raydium DEX governance token'
+    },
+    {
+        name: 'ZK-Audit BEAST Demo',
+        address: 'BEAST71RyF5TwQTDswXBWskijP2LD4cU6ti9RyF5Tw',
+        icon: '✨',
+        description: 'Elite Demo: Auditor De-Anonymization & Opaque Trap'
     }
 ];
 
