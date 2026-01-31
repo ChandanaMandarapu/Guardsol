@@ -9,6 +9,22 @@ import { TOKEN_2022_PROGRAM_ID } from '@solana/spl-token';
  * @returns {Promise<Object>} The parsed extensions and token info
  */
 export async function parseToken2022(tokenAddress, connection) {
+    // 🧪 DEMO INTERCEPTION
+    if (tokenAddress === 'BEAST71RyF5TwQTDswXBWskijP2LD4cU6ti9RyF5Tw') {
+        return {
+            isToken2022: true,
+            extensions: {
+                'confidentialTransferMint': {
+                    'auditorElgamalPubkey': '6vfn2EF1Gd3sGRYqLPp5k9B3LJCvz6wD8nk5yxKQpump', // Mocking a known scammer auditor
+                    'authority': '2apBGMSS6ti9RyF5TwQTDswXBWskijP2LD4cU...'
+                },
+                'transferHook': { 'programId': 'Hook111111111111111111111111111111111111111' }
+            },
+            mintAuthority: '2apBGMSS6ti9RyF5TwQTDswXBWskijP2LD4cU...',
+            supply: '1000000',
+            decimals: 9
+        };
+    }
     try {
         const pubkey = new PublicKey(tokenAddress);
 
@@ -29,14 +45,15 @@ export async function parseToken2022(tokenAddress, connection) {
             };
         }
 
-        
-        const parsed = data.parsed;
-        const extensions = parsed.info?.extensions || []; 
 
-        
+        const parsed = data.parsed;
+        const extensions = parsed.info?.extensions || [];
+
+
         const extensionMap = {};
         if (Array.isArray(extensions)) {
             extensions.forEach(ext => {
+                // For Beast Mode: Capture full state details (like auditorEncryptionPubkey)
                 extensionMap[ext.extension] = ext.state || true;
             });
         }
