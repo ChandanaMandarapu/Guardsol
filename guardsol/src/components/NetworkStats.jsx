@@ -17,19 +17,56 @@ export default function NetworkStats() {
 
     async function fetchStats() {
         try {
-            // Use our new API endpoint
             const response = await fetch('/api/get-stats');
-            if (!response.ok) throw new Error('Failed to fetch stats');
 
-            const data = await response.json();
-            setStats(data);
-            setError(null);
+            // Handle cases where the endpoint returns HTML (like a 404 falling back to index.html)
+            const contentType = response.headers.get('content-type');
+            if (response.ok && contentType && contentType.includes('application/json')) {
+                const data = await response.json();
+                setStats(data);
+                setError(null);
+            } else if (window.location.hostname === 'localhost') {
+                console.log('💡 Using local mock stats (API not found on localhost)');
+                setStats(getMockStats());
+            } else {
+                throw new Error('API Unavailable');
+            }
         } catch (err) {
-            console.error('Error fetching network stats:', err);
-            setError('Failed to load network stats');
+            if (window.location.hostname === 'localhost') {
+                console.log('💡 Fetch failed - Using local mock stats');
+                setStats(getMockStats());
+            } else {
+                console.error('Error fetching network stats:', err);
+                setError('Failed to load network stats');
+            }
         } finally {
             setLoading(false);
         }
+    }
+
+    function getMockStats() {
+        return {
+            stats: {
+                totalReports: 12453,
+                verifiedReports: 8902,
+                activeUsers: 4521,
+                scamsPrevented: 3200
+            },
+            chartData: [
+                { date: 'Mon', count: 400 },
+                { date: 'Tue', count: 300 },
+                { date: 'Wed', count: 200 },
+                { date: 'Thu', count: 278 },
+                { date: 'Fri', count: 189 },
+                { date: 'Sat', count: 239 },
+                { date: 'Sun', count: 349 },
+            ],
+            topScams: [
+                { address: '6vfn2EF1Gd3sGRYqLPp5k9B3LJCvz6wD8nk5yxKQpump', type: 'Fake Token', count: 42 },
+                { address: 'EcmuMM9Oj1zOYFxTXb3s7J1TRKhdhg4L6vs3gfSYump', type: 'Honeypot', count: 28 },
+                { address: '2apBGMSS6ti9RyF5TwQTDswXBWskijP2LD4cU6ti9R', type: 'Phishing', count: 15 }
+            ]
+        };
     }
 
     if (error || !stats) return null;
