@@ -1,5 +1,5 @@
 
-import { Connection, PublicKey } from '@solana/web3.js';
+import { PublicKey } from '@solana/web3.js';
 import { TOKEN_2022_PROGRAM_ID } from '@solana/spl-token';
 
 /**
@@ -53,7 +53,7 @@ export async function parseToken2022(tokenAddress, connection) {
         const extensionMap = {};
         if (Array.isArray(extensions)) {
             extensions.forEach(ext => {
-                // For Beast Mode: Capture full state details (like auditorEncryptionPubkey)
+                //Capture full state details (like auditorEncryptionPubkey)
                 extensionMap[ext.extension] = ext.state || true;
             });
         }
