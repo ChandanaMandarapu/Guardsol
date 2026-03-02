@@ -15,6 +15,7 @@ import NetworkStats from './components/NetworkStats';
 import ReputationGuide from './components/ReputationGuide';
 import TxSimulator from './components/TxSimulator';
 import NTGDashboard from './ntg/components/NTGDashboard';
+import GSigVisualizer from './ntg/components/GSigVisualizer';
 
 import { validateConfig } from './utils/config';
 import {
@@ -107,7 +108,12 @@ function AppContent() {
 
       {/* 🧬 NTG SCANNER (SEPARATE PAGE) */}
       {currentPage === 'ntg' && (
-        <NTGDashboard />
+        <div className="flex flex-col gap-8">
+          <NTGDashboard />
+          <div className="max-w-4xl mx-auto w-full px-4 mb-20">
+            <GSigVisualizer />
+          </div>
+        </div>
       )}
 
       {/* 🏠 HOME / WALLET SCAN */}
